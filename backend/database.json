@@ -1,0 +1,50 @@
+{
+  "users": {
+    "21672": {
+      "email": "james@email.com",
+      "name": "James",
+      "password": "betty",
+      "watcheeUserIds": {
+        "26392": true,
+        "97374": true
+      }
+    },
+    "26392": {
+      "email": "augustine@email.com",
+      "name": "Augustine",
+      "password": "august",
+      "watcheeUserIds": {
+        "97374": true
+      }
+    },
+    "97374": {
+      "email": "betty@email.com",
+      "name": "Betty",
+      "password": "cardigan",
+      "watcheeUserIds": {}
+    }
+  },
+  "posts": {
+    "701379": {
+      "id": "701379",
+      "creatorUserId": 21672,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+      "title": "Hello Kitty Director",
+      "start": "2011-10-05T14:48:00.000Z",
+      "description": "Dedicated technical wizard with a passion and interest in human relationships",
+      "createdAt": "2022-02-27T11:48:53.908Z",
+      "likedUserIds": {},
+      "comments": [
+        {
+          "userId": "97374",
+          "comment": "Hello there"
+        },
+        {
+          "userId": "26392",
+          "comment": "Hello there2"
+        }
+      ]
+    }
+  },
+  "nextMessageId": 1
+}
