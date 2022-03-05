@@ -390,7 +390,7 @@ describe('Job post tests', () => {
       expect(job.image).toBe(JOB1.image);
       expect(job.description).toBe(JOB1.description);
       expect(job.start).toBe(JOB1.start);
-      expect(job.likedUserIds).toEqual(expect.arrayContaining([]));
+      expect(job.likes).toEqual(expect.arrayContaining([]));
       expect(job.comments).toEqual(expect.arrayContaining([]));
     });
 
@@ -439,7 +439,7 @@ describe('Job post tests', () => {
       expect(thisJob.image).toBe(JOB1.image);
       expect(thisJob.description).toBe(JOB1.description);
       expect(thisJob.start).toBe(JOB1.start);
-      expect(thisJob.likedUserIds).toEqual(expect.arrayContaining([]));
+      expect(thisJob.likes).toEqual(expect.arrayContaining([]));
       expect(thisJob.comments).toEqual(expect.arrayContaining([]));
     });
 
@@ -456,7 +456,7 @@ describe('Job post tests', () => {
       expect(thisJob.image).toBe(JOB1.image);
       expect(thisJob.description).toBe(JOB1.description);
       expect(thisJob.start).toBe('2008-10-05T14:48:00.000Z');
-      expect(thisJob.likedUserIds).toEqual(expect.arrayContaining([]));
+      expect(thisJob.likes).toEqual(expect.arrayContaining([]));
       expect(thisJob.comments).toEqual(expect.arrayContaining([]));
     });
 
@@ -473,7 +473,7 @@ describe('Job post tests', () => {
       expect(thisJob.image).toBe(JOB1.image);
       expect(thisJob.description).toBe('newDescription');
       expect(thisJob.start).toBe(JOB1.start);
-      expect(thisJob.likedUserIds).toEqual(expect.arrayContaining([]));
+      expect(thisJob.likes).toEqual(expect.arrayContaining([]));
       expect(thisJob.comments).toEqual(expect.arrayContaining([]));
     });
 
@@ -490,7 +490,7 @@ describe('Job post tests', () => {
       expect(thisJob.image).toBe(JOB2.image);
       expect(thisJob.description).toBe(JOB1.description);
       expect(thisJob.start).toBe(JOB1.start);
-      expect(thisJob.likedUserIds).toEqual(expect.arrayContaining([]));
+      expect(thisJob.likes).toEqual(expect.arrayContaining([]));
       expect(thisJob.comments).toEqual(expect.arrayContaining([]));
     });
 
@@ -532,7 +532,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
 
       const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
-      expect(job.likedUserIds).toEqual(expect.arrayContaining([ {
+      expect(job.likes).toEqual(expect.arrayContaining([ {
         userId: globals.ret1.userId,
         userEmail: USER1.email,
         userName: USER1.name,
@@ -545,7 +545,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
 
       const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
-      expect(job.likedUserIds).toEqual(expect.arrayContaining([ {
+      expect(job.likes).toEqual(expect.arrayContaining([ {
         userId: globals.ret1.userId,
         userEmail: USER1.email,
         userName: USER1.name,
@@ -558,7 +558,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: false }, await globals.ret1.token);
 
       const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
-      expect(job.likedUserIds).toEqual(expect.arrayContaining([]));
+      expect(job.likes).toEqual(expect.arrayContaining([]));
     });
 
     it('successfully have two people like something', async () => {
@@ -567,7 +567,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret2.token);
 
       const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
-      expect(job.likedUserIds).toEqual(expect.arrayContaining([{
+      expect(job.likes).toEqual(expect.arrayContaining([{
         userId: globals.ret1.userId,
         userEmail: USER1.email,
         userName: USER1.name,
