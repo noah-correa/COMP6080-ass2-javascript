@@ -13,6 +13,7 @@
 
 * 5th March: Due date extended to 8pm on Monday (a 10 hour extension)
 * 5th March: Some backend vars updated to match docs + a better default DB when running `npm run reset`
+* 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit)
 
 ## 1. Background & Motivation
 
@@ -209,7 +210,7 @@ To do this, run the following command once on your machine:
 
 Then whenever you want to start your server, run the following in your project's root folder:
 
-`$ npx http-server frontend -p [port]`
+`$ npx http-server frontend -c 1 -p [port]`
 
 Where `[port]` is the port you want to run the server on (e.g. `8080`). Any number is fine.
 

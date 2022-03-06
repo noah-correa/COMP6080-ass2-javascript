@@ -195,6 +195,7 @@ describe('User tests', () => {
       expect(userInfo.id).toBe(id);
       expect(userInfo.email).toBe(USER1.email);
       expect(userInfo.name).toBe(USER1.name);
+      expect(userInfo.password).toBe(undefined);
       expect(userInfo.image).toBe(undefined);
       expect(userInfo.watcheeUserIds).toEqual(expect.arrayContaining([]));
     });

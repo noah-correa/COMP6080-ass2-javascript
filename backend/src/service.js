@@ -238,6 +238,7 @@ export const deleteJobPost = (authUserId, jobPostId) => dataLock((resolve, rejec
 export const getUser = (userId) => dataLock((resolve, reject) => {
   const userDetails = {
     ...users[userId],
+    password: undefined,
     id: parseInt(userId, 10),
     watcheeUserIds: Object.keys(users[userId].watcheeUserIds).map(i => parseInt(i, 10))
   };
