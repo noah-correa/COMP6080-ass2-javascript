@@ -33,6 +33,11 @@
         "description": "Token to provide authorisation",
         "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhheWRlbkB1bnN3LmVkdS5hdSIsImlhdCI6MTYwMzk0MzIzMH0.b37PfwlcH_cue6yhgvDt2IiNvhRACf79hTNtacYB94Q"
       },
+      "Start": {
+        "type": "integer",
+        "description": "Starting index for pagination",
+        "example": 0
+      },
       "Email": {
         "type": "string",
         "description": "User's email address",
@@ -234,6 +239,15 @@
         "schema": {
           "$ref": "#/components/schemas/UserId"
         }
+      },
+      "PaginationStart": {
+        "name": "start",
+        "in": "params",
+        "description": "Start Index",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/Start"
+        }
       }
     },
     "responses": {
@@ -400,6 +414,9 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/Authorization"
+          },
+          {
+            "$ref": "#/components/parameters/PaginationStart"
           }
         ],
         "responses": {
