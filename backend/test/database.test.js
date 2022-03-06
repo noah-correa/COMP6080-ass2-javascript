@@ -2,233 +2,129 @@ import request from 'supertest';
 import server from '../src/server';
 import { reset } from '../src/service';
 
-const postTry = async (path, payload, token) => sendTry('post', path, payload, token);
-const getTry = async (path, payload, token) => sendTry('get', path, payload, token);
+const IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
 
-const sendTry = async (typeFn, path, payload = {}, token = null) => {
-    let req = request(server);
-    if (typeFn === 'post') {
-        req = req.post(path);
-    } else if (typeFn === 'get') {
-        req = req.get(path);
-    } else if (typeFn === 'delete') {
-        req = req.delete(path);
-    } else if (typeFn === 'put') {
-        req = req.put(path);
-    }
-    if (token !== null) {
-        req = req.set('Authorization', `Bearer ${token}`);
-    }
-    const response = await req.send(payload);
-    return response.body;
+const INVALID_TOKEN = 'Cactusbot';
+
+const USER1 = {
+  name: 'Betty',
+  email: 'betty@email.com',
+  password: 'cardigan',
+  image: IMAGE,
+};
+const USER2 = {
+  name: 'Augustine',
+  email: 'augustine@email.com',
+  password: 'august',
+  image: IMAGE,
+};
+const USER3 = {
+  name: 'James',
+  email: 'james@email.com',
+  password: 'betty',
+};
+const JOB1 = {
+  title: 'Hello Kitty Director',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+  start: '2011-10-05T14:48:00.000Z',
+  description: 'Dedicated technical wizard with a passion and interest in human relationships',
+};
+const JOB2 = {
+  title: 'Lunch time master',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+  start: '2011-09-05T14:48:00.000Z',
+  description: 'CTO of the food',
 };
 
-describe('Making the database', () => {
+const postTry = async (path, status, payload, token) => sendTry('post', path, status, payload, token);
+const getTry = async (path, status, payload, token) => sendTry('get', path, status, payload, token);
+const deleteTry = async (path, status, payload, token) => sendTry('delete', path, status, payload, token);
+const putTry = async (path, status, payload, token) => sendTry('put', path, status, payload, token);
 
-    beforeAll(() => {
-        reset();
+const sendTry = async (typeFn, path, status = 200, payload = {}, token = null) => {
+  let req = request(server);
+  if (typeFn === 'post') {
+    req = req.post(path);
+  } else if (typeFn === 'get') {
+    req = req.get(path);
+  } else if (typeFn === 'delete') {
+    req = req.delete(path);
+  } else if (typeFn === 'put') {
+    req = req.put(path);
+  }
+  if (token !== null) {
+    req = req.set('Authorization', `Bearer ${token}`);
+  }
+  const response = await req.send(payload);
+  if (response.statusCode !== status) {
+    console.log(response.body);
+  }
+  expect(response.statusCode).toBe(status);
+  return response.body;
+};
+
+const validToken = async (user) => {
+  const { token } = await postTry('/auth/login', 200, {
+    email: user.email,
+    password: user.password,
+  });
+  return token;
+}
+
+const publicChannelId = async () => {
+  const { channels } = await getTry('/channel', 200, {}, await validToken(USER1));
+  return channels[0].private ? channels[1].id : channels[0].id;
+};
+
+const privateChannelId = async () => {
+  const { channels } = await getTry('/channel', 200, {}, await validToken(USER1));
+  return channels[0].private ? channels[0].id : channels[1].id;
+};
+
+const getUserId = async (user) => {
+  const { users, } = await getTry('/user', 200, {}, await validToken(USER1));
+  return users.find(u => u.email === user.email).id;
+}
+
+describe('Resetting database', () => {
+
+  beforeEach(async () => {
+    reset();    
+  });
+
+  beforeAll(() => {
+    server.close();
+  });
+
+  describe('Resetting database', () => {
+    it('Resetting database', async () => {
+      const globals = {};
+
+      globals.ret1 = await postTry('/auth/register', 200, {
+        email: USER1.email,
+        password: USER1.password,
+        name: USER1.name,
+      });
+
+      globals.ret2 = await postTry('/auth/register', 200, {
+        email: USER2.email,
+        password: USER2.password,
+        name: USER2.name,
+      });
+
+      globals.ret3 = await postTry('/auth/register', 200, {
+        email: USER3.email,
+        password: USER3.password,
+        name: USER3.name,
+      });
+
+      await putTry(`/user/watch`, 200, { id: globals.ret2.userId, turnon: true }, await globals.ret1.token);
+      await putTry(`/user/watch`, 200, { id: globals.ret3.userId, turnon: true }, await globals.ret1.token);
+      await putTry(`/user/watch`, 200, { id: globals.ret3.userId, turnon: true }, await globals.ret2.token);
+
+      const { id } = await postTry(`/job`, 200, JOB1, await globals.ret1.token);
     });
 
-    beforeAll(() => {
-        server.close();
-    });
-
-    test('Public channel', async () => {
-        let body = await postTry('/auth/register', {
-            email: 'mia@email.com',
-            password: 'solongbouldercity',
-            name: 'Mia',
-        });
-        const mia = body.token;
-        body = await postTry('/auth/register', {
-            email: 'sebastian@email.com',
-            password: 'chickenonastick',
-            name: 'Sebastian',
-        });
-        const seb = body.token;
-
-        body = await postTry('/channel', {
-            name: 'public channel',
-            private: false,
-            description: '',
-        }, mia);
-        const channelId = body.channelId;
-
-        const { users, } = await getTry('/user', {}, mia);
-        const sebId = users.find(u => u.email === 'sebastian@email.com').id;
-
-        await postTry(`/channel/${channelId}/invite`, {
-            userId: sebId,
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'when do you leave? in the morning?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'yeah, 6:45. boise',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'boise?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'boise',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'to boise!',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'you should come',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'to boise?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'yeah, you can knock that off your bucketlist',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'oh, that would be... really exciting. i wish i could',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'what are you doing after the tour?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'why can\'t you?',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'come to boise?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'yeah',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'cause i have to rehearse',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'yeah, but can\'t you rehearse anywhere?',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: '...anywhere you are?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'i mean... i guess',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'um... well all my stuff is here and it\'s in two weeks',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'so i don\'t really think that would be...',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'okay',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'the best idea right now',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'well...',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'but... i wish i could',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'we\'re just gonna have to try and see each other, y\'know, so that we see each other',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'i know, but when are you done?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'what do you mean? i mean...',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'when are you finished with the whole tour?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'but after we finish, we\'re gonna go to record and then we\'ll go back on tour',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'you know, we tour so we can make the record so we can go back and tour the record',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'so it\'s like the long haul?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'what do you mean "the long haul"?',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'i mean the long haul, like you\'re gonna stay in this band... for a long time... on tour',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'i mean, what did you think i was gonna do?',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'i don\'t... i hadn\'t really thought it through. i didn\'t know that the band... was so important',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'you didn\'t think it would be successful',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'um... no, that\'s not really what i mean. i just mean that you, i mean, you\'re gonna be on tour for what? months now? years?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'yeah it\'ll be, this is it. i mean, this is it. it could feasibly be ever. i could be on tour with this... for a couple years at least, just this record',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'do you like the music you\'re playing?',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'i don\'t... i don\'t know what it matters',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'well, it matters because if you\'re gonna give up your dream, i think it matters that you like what you\'re playing on the road for years',
-        }, mia);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'do you like the music i\'m playing?',
-        }, seb);
-
-        await postTry(`/message/${channelId}`, {
-            message: 'yeah, i do! i just didn\'t think that you did',
-        }, mia);
-
-    });
+  });
 
 });

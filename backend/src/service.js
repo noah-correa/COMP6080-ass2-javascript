@@ -144,14 +144,14 @@ export const assertValidJobPost = (jobPostId) => dataLock((resolve, reject) => {
 });
 
 export const assertCreatorOfJobPost = (userId, jobPostId) => {
-  if (posts[jobPostId].creatorUserId !== parseInt(userId, 10)) {
+  if (posts[jobPostId].creatorId !== parseInt(userId, 10)) {
     throw new AccessError('Authorised user is not the creator of this job post');
   }
 };
 
 export const assertWatcherOfJobPost = (userId, jobPostId) => {
-  const { creatorUserId } = posts[jobPostId];
-  const { watcheeUserIds } = users[creatorUserId];
+  const { creatorId } = posts[jobPostId];
+  const { watcheeUserIds } = users[creatorId];
   if (!Object.keys(watcheeUserIds).includes(userId)) {
     throw new AccessError('Authorised user is not a watcher of post author');
   }
@@ -159,10 +159,10 @@ export const assertWatcherOfJobPost = (userId, jobPostId) => {
 
 export const getJobs = (authUserId) => dataLock((resolve, reject) => {
   const allPosts = Object.keys(posts).map(pid => posts[pid]);
-  const relevantPosts = allPosts.filter(p => Object.keys(users[p.creatorUserId].watcheeUserIds).includes(authUserId));
+  const relevantPosts = allPosts.filter(p => Object.keys(users[p.creatorId].watcheeUserIds).includes(authUserId));
   const expandedPosts = relevantPosts.map(post => ({
     ...post,
-    likedUserIds: Object.keys(post.likedUserIds).map(i => ({
+    likes: Object.keys(post.likes).map(i => ({
       userId: parseInt(i, 10),
       userEmail: users[i].email,
       userName: users[i].name,
@@ -186,13 +186,13 @@ export const postJob = (authUserId, image, title, start, description) => dataLoc
   }
   const newJob = {
     id: newJobId(),
-    creatorUserId: parseInt(authUserId, 10),
+    creatorId: parseInt(authUserId, 10),
     image,
     title,
     start,
     description,
     createdAt: new Date().toISOString(),
-    likedUserIds: {},
+    likes: {},
     comments: [],
   };
   posts[newJob.id] = newJob;
@@ -217,10 +217,10 @@ export const commentOnJobPost = (authUserId, jobPostId, comment) => dataLock((re
 
 export const likeJobPost = (authUserId, jobPostId, turnon) => dataLock((resolve, reject) => {
   if (turnon) {
-    posts[jobPostId].likedUserIds[authUserId] = true;
+    posts[jobPostId].likes[authUserId] = true;
   } else {
-    if (Object.keys(posts[jobPostId].likedUserIds).includes(authUserId)) {
-      delete posts[jobPostId].likedUserIds[authUserId];
+    if (Object.keys(posts[jobPostId].likes).includes(authUserId)) {
+      delete posts[jobPostId].likes[authUserId];
     }
   }
   resolve(posts[jobPostId]);
@@ -238,6 +238,7 @@ export const deleteJobPost = (authUserId, jobPostId) => dataLock((resolve, rejec
 export const getUser = (userId) => dataLock((resolve, reject) => {
   const userDetails = {
     ...users[userId],
+    password: undefined,
     id: parseInt(userId, 10),
     watcheeUserIds: Object.keys(users[userId].watcheeUserIds).map(i => parseInt(i, 10))
   };

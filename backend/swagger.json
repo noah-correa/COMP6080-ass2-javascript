@@ -225,6 +225,15 @@
         "schema": {
           "$ref": "#/components/schemas/Token"
         }
+      },
+      "UserIdParam": {
+        "name": "userId",
+        "in": "params",
+        "description": "User ID",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/UserId"
+        }
       }
     },
     "responses": {
@@ -592,7 +601,7 @@
       }
     },
     "/job/like": {
-      "post": {
+      "put": {
         "security": [
           {
             "bearerAuth": []
@@ -619,7 +628,7 @@
                     "$ref": "#/components/schemas/JobId"
                   },
                   "turnon": {
-                    "$ref": "#/components/schemas/On"
+                    "$ref": "#/components/schemas/TurnOn"
                   }
                 }
               }
@@ -654,22 +663,11 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/Authorization"
+          },
+          {
+            "$ref": "#/components/parameters/UserIdParam"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "$ref": "#/components/schemas/UserId"
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK",
@@ -765,7 +763,7 @@
                     "$ref": "#/components/parameters/UserEmail"
                   },
                   "turnon": {
-                    "$ref": "#/components/parameters/On"
+                    "$ref": "#/components/parameters/TurnOnOn"
                   }
                 }
               }

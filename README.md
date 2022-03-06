@@ -11,8 +11,10 @@
 
 ## 0. Change Log
 
-Coming Soon.
-  
+* 5th March: Due date extended to 8pm on Monday (a 10 hour extension)
+* 5th March: Some backend vars updated to match docs + a better default DB when running `npm run reset`
+* 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit)
+
 ## 1. Background & Motivation
 
 Web-based applications are becoming the most common way to build a digital capability accessible to a mass audience. While there are modern tools that help us build these rapidly, it's important to understand the fundamental JavaScript-based technology and architectures that exist, both to gain a deeper understanding for when these skills may be needed, but also to simply understand the mechanics of fundamental JS. Even when working with a high level framework like ReactJS, understanding (in-concept) the code that it is transpiled to will ensure you're a more well rounded web-based engineer.
@@ -208,7 +210,7 @@ To do this, run the following command once on your machine:
 
 Then whenever you want to start your server, run the following in your project's root folder:
 
-`$ npx http-server frontend -p [port]`
+`$ npx http-server frontend -c 1 -p [port]`
 
 Where `[port]` is the port you want to run the server on (e.g. `8080`). Any number is fine.
 
@@ -355,8 +357,7 @@ knowledge.
 
 ## 7. Submission
 
-This assignment is due *Monday 28th of March, 10:00am*.
-
+This assignment is due *Monday 28th of March, 8pm*.
 
 To submit your assignment, you must complete the following two steps in order:
  * Ensure you've pushed all of your code to your gitlab master branch. You can check if you've done this properly by seeing what code is on the gitlab site on your master branch.
