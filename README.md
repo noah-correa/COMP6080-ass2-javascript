@@ -14,6 +14,7 @@
 * 5th March: Due date extended to 8pm on Monday (a 10 hour extension)
 * 5th March: Some backend vars updated to match docs + a better default DB when running `npm run reset`
 * 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit); 2.4.3. missing line about image; job/feed pagination added correctly
+* 7th March: Removed 2nd sentence of 2.5.2 as it does not apply.
 
 ## 1. Background & Motivation
 
@@ -142,7 +143,7 @@ Milestone 5 focuses on addition and removing both content and comments.
 * How users open this component, modal, or separate screen can be found in a single or multiple places, and should be easily and clearly accessible.
 
 #### 2.5.2. Updating & deleting a job
-* Let a user update a job they made or delete it via (`DELETE /job`) or (`PUT /job`). Users are not able to update the content of their job.
+* Let a user update a job they made or delete it via (`DELETE /job`) or (`PUT /job`).
 
 #### 2.5.3. Leaving comments
 * Users can write comments on "jobs" via (`POST /job/comment`)
