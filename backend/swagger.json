@@ -81,6 +81,27 @@
           }
         }
       },
+      "UserFull": {
+        "type": "object",
+        "description": "Detailed information of the user",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "email": {
+            "$ref": "#/components/schemas/Email"
+          },
+          "name": {
+            "$ref": "#/components/schemas/UserName"
+          },
+          "image": {
+            "$ref": "#/components/schemas/UserImage"
+          },
+          "watcheeUserIds": {
+            "$ref": "#/components/schemas/UserIds"
+          }
+        }
+      },
       "TurnOn": {
         "type": "boolean",
         "description": "True if should add/enable, false if should remove/disable",
@@ -91,6 +112,13 @@
         "description": "Array of all the job postings of people you watch",
         "items": {
           "$ref": "#/components/schemas/JobFull"
+        }
+      },
+      "UserIds": {
+        "type": "array",
+        "description": "List of user IDs",
+        "items": {
+          "$ref": "#/components/schemas/UserId"
         }
       },
       "JobFull": {
@@ -691,7 +719,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "$ref": "#/components/schemas/UserFull"
                 }
               }
             }
@@ -780,7 +808,7 @@
                     "$ref": "#/components/parameters/UserEmail"
                   },
                   "turnon": {
-                    "$ref": "#/components/parameters/TurnOnOn"
+                    "$ref": "#/components/parameters/TurnOn"
                   }
                 }
               }
