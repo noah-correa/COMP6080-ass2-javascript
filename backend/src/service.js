@@ -157,7 +157,12 @@ export const assertWatcherOfJobPost = (userId, jobPostId) => {
   }
 };
 
-export const getJobs = (authUserId) => dataLock((resolve, reject) => {
+export const getJobs = (authUserId, start) => dataLock((resolve, reject) => {
+  if (Number.isNaN(start)) {
+    return reject(new InputError('Invalid start value'));
+  } else if (start < 0) {
+    return reject(new InputError('Start value cannot be negative'));
+  }
   const allPosts = Object.keys(posts).map(pid => posts[pid]);
   const relevantPosts = allPosts.filter(p => Object.keys(users[p.creatorId].watcheeUserIds).includes(authUserId));
   const expandedPosts = relevantPosts.map(post => ({
@@ -177,7 +182,7 @@ export const getJobs = (authUserId) => dataLock((resolve, reject) => {
       };
     }),
   }));
-  resolve(expandedPosts);
+  resolve(expandedPosts.slice(start, start + 5));
 });
 
 export const postJob = (authUserId, image, title, start, description) => dataLock((resolve, reject) => {

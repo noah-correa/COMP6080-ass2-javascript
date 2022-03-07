@@ -73,7 +73,8 @@ app.post('/auth/register', catchErrors(async (req, res) => {
 ***************************************************************/
 
 app.get('/job/feed', catchErrors(authed(async (req, res, authUserId) => {
-  return res.json(await getJobs(authUserId));
+  const { start, } = req.query;
+  return res.json(await getJobs(authUserId, parseInt(start, 10)));
 })));
 
 app.post('/job', catchErrors(authed(async (req, res, authUserId) => {

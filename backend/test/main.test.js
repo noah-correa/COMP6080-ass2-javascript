@@ -35,6 +35,12 @@ const JOB2 = {
   start: '2011-09-05T14:48:00.000Z',
   description: 'CTO of the food',
 };
+const JOB3 = {
+  title: 'Unique title',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+  start: '2007-09-05T14:48:00.000Z',
+  description: 'CEO of the box',
+};
 
 const postTry = async (path, status, payload, token) => sendTry('post', path, status, payload, token);
 const getTry = async (path, status, payload, token) => sendTry('get', path, status, payload, token);
@@ -376,13 +382,13 @@ describe('Job post tests', () => {
 
   describe('GET /job/feed should', () => {
     it('fail with a bad token', async () => {
-      await getTry('/job/feed', 403, {}, INVALID_TOKEN);
+      await getTry('/job/feed?start=0', 403, {}, INVALID_TOKEN);
     });
 
     it('return the right core elements for a basic job post', async () => {
       const { id } = await postTry(`/job`, 200, JOB1, await globals.ret2.token);
 
-      const jobs = await getTry(`/job/feed`, 200, {}, await globals.ret1.token);
+      const jobs = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token);
       expect(jobs.length).toBe(1);
 
       const job = jobs[0];
@@ -398,7 +404,7 @@ describe('Job post tests', () => {
     it('return the right elements for the right user', async () => {
       const { id } = await postTry(`/job`, 200, JOB1, await globals.ret1.token);
 
-      const jobs = await getTry(`/job/feed`, 200, {}, await globals.ret2.token);
+      const jobs = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret2.token);
       expect(jobs.length).toBe(0);
     });
 
@@ -406,8 +412,46 @@ describe('Job post tests', () => {
       await postTry(`/job`, 200, JOB1, await globals.ret2.token);
       await postTry(`/job`, 200, JOB2, await globals.ret2.token);
 
-      const jobs = await getTry(`/job/feed`, 200, {}, await globals.ret1.token);
+      const jobs = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token);
       expect(jobs.length).toBe(2);
+    });
+
+    it('correctly paginate', async () => {
+      await postTry(`/job`, 200, JOB1, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB2, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB3, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB1, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB2, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB3, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB1, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB2, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB3, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB1, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB2, await globals.ret2.token);
+      await postTry(`/job`, 200, JOB3, await globals.ret2.token);
+
+      let jobs = null;
+
+      jobs = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token);
+      expect(jobs.length).toBe(5);
+      expect(jobs[0].title === JOB1.title);
+      expect(jobs[1].title === JOB2.title);
+      expect(jobs[2].title === JOB3.title);
+      expect(jobs[3].title === JOB1.title);
+      expect(jobs[4].title === JOB2.title);
+
+      jobs = await getTry(`/job/feed?start=5`, 200, {}, await globals.ret1.token);
+      expect(jobs.length).toBe(5);
+      expect(jobs[0].title === JOB3.title);
+      expect(jobs[1].title === JOB1.title);
+      expect(jobs[2].title === JOB2.title);
+      expect(jobs[3].title === JOB3.title);
+      expect(jobs[4].title === JOB1.title);
+
+      jobs = await getTry(`/job/feed?start=10`, 200, {}, await globals.ret1.token);
+      expect(jobs.length).toBe(2);
+      expect(jobs[0].title === JOB2.title);
+      expect(jobs[1].title === JOB3.title);
     });
 
   });
@@ -432,7 +476,7 @@ describe('Job post tests', () => {
       
       await putTry(`/job`, 200, { id, title: 'newTitle' }, await globals.ret2.token);
 
-      const jobs = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
+      const jobs = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
       expect(jobs.length).toBe(1);
       const thisJob = jobs[0];
 
@@ -449,7 +493,7 @@ describe('Job post tests', () => {
       
       await putTry(`/job`, 200, { id, start: '2008-10-05T14:48:00.000Z' }, await globals.ret2.token);
 
-      const jobs = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
+      const jobs = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
       expect(jobs.length).toBe(1);
       const thisJob = jobs[0];
 
@@ -466,7 +510,7 @@ describe('Job post tests', () => {
       
       await putTry(`/job`, 200, { id, description: 'newDescription' }, await globals.ret2.token);
 
-      const jobs = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
+      const jobs = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
       expect(jobs.length).toBe(1);
       const thisJob = jobs[0];
 
@@ -483,7 +527,7 @@ describe('Job post tests', () => {
       
       await putTry(`/job`, 200, { id, image: JOB2.image }, await globals.ret2.token);
 
-      const jobs = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
+      const jobs = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
       expect(jobs.length).toBe(1);
       const thisJob = jobs[0];
 
@@ -509,12 +553,12 @@ describe('Job post tests', () => {
     it('successfully delete a job', async () => {
       const { id } = await postTry(`/job`, 200, JOB1, await globals.ret2.token);
 
-      const jobs = await getTry(`/job/feed`, 200, {}, await globals.ret1.token);
+      const jobs = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token);
       expect(jobs.length).toBe(1);
 
       await deleteTry(`/job`, 200, { id, image: JOB2.image }, await globals.ret2.token);
 
-      const jobs2 = await getTry(`/job/feed`, 200, {}, await globals.ret1.token);
+      const jobs2 = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token);
       expect(jobs2.length).toBe(0);
     });
   });
@@ -532,7 +576,7 @@ describe('Job post tests', () => {
       const { id } = await postTry(`/job`, 200, JOB1, await globals.ret2.token);
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.likes).toEqual(expect.arrayContaining([ {
         userId: globals.ret1.userId,
         userEmail: USER1.email,
@@ -545,7 +589,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.likes).toEqual(expect.arrayContaining([ {
         userId: globals.ret1.userId,
         userEmail: USER1.email,
@@ -558,7 +602,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
       await putTry(`/job/like`, 200, { id, turnon: false }, await globals.ret1.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.likes).toEqual(expect.arrayContaining([]));
     });
 
@@ -567,7 +611,7 @@ describe('Job post tests', () => {
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret1.token);
       await putTry(`/job/like`, 200, { id, turnon: true }, await globals.ret2.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.likes).toEqual(expect.arrayContaining([{
         userId: globals.ret1.userId,
         userEmail: USER1.email,
@@ -593,7 +637,7 @@ describe('Job post tests', () => {
       const { id } = await postTry(`/job`, 200, JOB1, await globals.ret2.token);
       await postTry(`/job/comment`, 200, { id, comment: 'Hello there' }, await globals.ret1.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.comments).toEqual(expect.arrayContaining([ {
         userId: globals.ret1.userId,
         userEmail: USER1.email,
@@ -607,7 +651,7 @@ describe('Job post tests', () => {
       await postTry(`/job/comment`, 200, { id, comment: 'Hello there' }, await globals.ret1.token);
       await postTry(`/job/comment`, 200, { id, comment: 'Hello there2' }, await globals.ret1.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.comments).toEqual(expect.arrayContaining([{
         userId: globals.ret1.userId,
         userEmail: USER1.email,
@@ -626,7 +670,7 @@ describe('Job post tests', () => {
       await postTry(`/job/comment`, 200, { id, comment: 'Hello there' }, await globals.ret1.token);
       await postTry(`/job/comment`, 200, { id, comment: 'Hello there2' }, await globals.ret2.token);
 
-      const job = (await getTry(`/job/feed`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
+      const job = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id)[0];
       expect(job.comments).toEqual(expect.arrayContaining([{
         userId: globals.ret1.userId,
         userEmail: USER1.email,
