@@ -13,7 +13,7 @@
 
 * 5th March: Due date extended to 8pm on Monday (a 10 hour extension)
 * 5th March: Some backend vars updated to match docs + a better default DB when running `npm run reset`
-* 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit)
+* 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit); 2.4.3. missing line about image
 
 ## 1. Background & Motivation
 
@@ -125,6 +125,7 @@ Milestone 4 focuses predominately on user profiles and how users interact with t
   * Email address
   * Password
   * Name
+  * Image
 
 #### 2.4.4. Watching / Unwatching
 * Watching on user profiles:
