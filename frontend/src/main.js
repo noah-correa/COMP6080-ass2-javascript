@@ -24,6 +24,7 @@ const showScreen = (id) => {
     }
 }
 
+//* Error helper functions
 const hideError = (id) => {
     document.getElementById(id).classList.add('hidden');
 }
@@ -31,7 +32,11 @@ const hideError = (id) => {
 const showError = (id, message) => {
     try {
         document.getElementById(id).classList.remove('hidden');
-        document.getElementById(id).childNodes[1].nodeValue = message;
+        document.getElementById(id).childNodes[1].textContent = message;
+        document.getElementById(`${id}-close`).addEventListener('click', (event) => {
+            event.preventDefault();
+            hideError(id);
+        })
     } catch {
         console.error("Error: Cannot hide error")
     }
@@ -61,7 +66,6 @@ document.getElementById('nav-register').addEventListener('click', (event) => {
 
 
 //* Login Screen
-// Handles user login
 document.getElementById('login').addEventListener('submit', (event) => {
     event.preventDefault();
     const { email, password } = document.forms.login;
@@ -70,16 +74,12 @@ document.getElementById('login').addEventListener('submit', (event) => {
         if (res.ok) return res.json();
         else {
             if (res.status === 400) {
-                // Input error
-                // console.log('Input error');
-                // throw(res.json());
-                loginError.nodeValue = "Input error";
+                showError('login-error', 'Invalid input');
             }
         }
     }).then(res => {
         if (res) {
-            // console.log(res);
-            loginError.nodeValue = "";
+            hideError('login-error');
             user.userToken = res.token;
             user.userId = res.userId;
             user.isLoggedIn = true;
@@ -101,7 +101,7 @@ document.getElementById('register').addEventListener('submit', (event) => {
     
     if (password.value !== confirmpassword.value) {
         // Passwords do not match
-        registerError.nodeValue = "Passwords do not match";
+        showError('register-error', 'Passwords do not match');
         return;
     }
 
@@ -109,15 +109,12 @@ document.getElementById('register').addEventListener('submit', (event) => {
         if (res.ok) return res.json();
         else {
             if (res.status === 400) {
-                // Input error
-                // console.log('Input error');
-                registerError.nodeValue = "Invalid input";
+                showError('register-error', 'Invalid input');
             }
         }
     }).then(res => {
         if (res) {
-            // console.log(res);
-            registerError.nodeValue = "";
+            hideError('register-error');
             user.userToken = res.token;
             user.userId = res.userId;
             user.isLoggedIn = true;

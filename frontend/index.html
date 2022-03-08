@@ -18,7 +18,7 @@
         </div>
     </header>
     <main role="main">
-        <!-- app goes here -->
+        <!-- Login Screen -->
         <div id="login-screen" class="login-container">
             <form id="login" name="login">
                 <label for="email">Email:</label>
@@ -27,8 +27,12 @@
                 <input type="password" name="password"/><br/>
                 <input type="submit" value="Login"/>
             </form>
-            <div class="error" id="login-error"></div>
+            <div class="error hidden" id="login-error">
+                <span class="login-error-message"></span>
+                <button class="error-close" id="login-error-close">X</button>
+            </div>
         </div>
+        <!-- Register Screen -->
         <div id="register-screen" class="register-container hidden">
             <form id="register" name="register">
                 <label for="email">Email:</label>
@@ -42,7 +46,7 @@
                 <input type="submit" value="Register"/>
             </form>
             <div class="error hidden" id="register-error">
-                <div class="register-error-message"></div>
+                <span class="register-error-message"></span>
                 <button class="error-close" id="register-error-close">X</button>
             </div>
         </div>
