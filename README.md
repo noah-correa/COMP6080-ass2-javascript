@@ -15,6 +15,7 @@
 * 5th March: Some backend vars updated to match docs + a better default DB when running `npm run reset`
 * 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit); 2.4.3. missing line about image; job/feed pagination added correctly
 * 7th March: Removed 2nd sentence of 2.5.2 as it does not apply.
+* 9th March: 2.4.1 udpated from "watches" to "is watched by" to make it far simpler. If you tried to implement the previous description (much harder) we will still award the marks.
 
 ## 1. Background & Motivation
 
@@ -115,7 +116,7 @@ Milestone 4 focuses predominately on user profiles and how users interact with t
 * Let a user click on a user's name from a job, like, or comment, and be taken to a profile screen for that user.
 * The profile screen should contain any information the backend provides for that particular user ID via (`GET /user`).
 * The profile should also display all jobs made by that person. This will involve filtering the results of `GET /job/feed`
-* The profile should also display somewhere all other users this profile watches (information via `GET /user`). This should consist of a list of names (which for each name links to another profile), as well as a count somewhere on the page that shows the total number of users they watch.
+* The profile should also display somewhere all other users this profile is watched by (information via `GET /user`). This should consist of a list of names (which for each name links to another profile), as well as a count somewhere on the page that shows the total number of users they watch.
 
 #### 2.4.2. Viewing your own profile
 * Users can view their own profile as if they would any other user's profile

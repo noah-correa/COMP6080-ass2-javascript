@@ -724,8 +724,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get a list of all the users",
-        "description": "Returns basic details of all the users",
+        "summary": "Get the details of a specific user",
+        "description": "Returns basic details of a specific user",
         "parameters": [
           {
             "$ref": "#/components/parameters/Authorization"
