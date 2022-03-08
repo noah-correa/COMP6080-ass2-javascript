@@ -180,6 +180,27 @@
           }
         }
       },
+      "JobBasicWithId": {
+        "type": "object",
+        "description": "Basic details of the job posting based on a unique id",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/JobId"
+          },
+          "title": {
+            "$ref": "#/components/schemas/JobTitle"
+          },
+          "image": {
+            "$ref": "#/components/schemas/JobImage"
+          },
+          "start": {
+            "$ref": "#/components/schemas/JobStart"
+          },
+          "description": {
+            "$ref": "#/components/schemas/JobDescription"
+          }
+        }
+      },
       "JobTitle": {
         "type": "string",
         "description": "Name of the job post",
@@ -536,7 +557,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/JobBasic"
+                "$ref": "#/components/schemas/JobBasicWithId"
               }
             }
           }
@@ -808,7 +829,7 @@
                     "$ref": "#/components/parameters/UserEmail"
                   },
                   "turnon": {
-                    "$ref": "#/components/parameters/TurnOn"
+                    "$ref": "#/components/schemas/TurnOn"
                   }
                 }
               }
