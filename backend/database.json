@@ -4,7 +4,8 @@
       "email": "betty@email.com",
       "name": "Betty",
       "password": "cardigan",
-      "watcheeUserIds": {}
+      "watcheeUserIds": {},
+      "sessionActive": true
     },
     "95112": {
       "email": "augustine@email.com",
@@ -21,7 +22,8 @@
       "watcheeUserIds": {
         "65687": true,
         "95112": true
-      }
+      },
+      "sessionActive": true
     }
   },
   "posts": {
