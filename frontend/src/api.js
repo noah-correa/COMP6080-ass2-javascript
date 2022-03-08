@@ -46,30 +46,32 @@ const apiMethods = {
         });
     },
 
+    register: (email, password, name) => {
+        const data = {
+            email: email,
+            password: password,
+            name: name
+        };
+        return fetch(`${baseURL}/auth/register`, {
+            ...defaultPost,
+            body: JSON.stringify(data)
+        });
+    },
+
     feed: (token) => {
-        // console.log(`${baseURL}/job/feed`);
         return fetch(`${baseURL}/job/feed?start=0`, {
             ...defaultGet,
             headers: { 
                 ...defaultGet.headers,
                 "Authorization": token,
             },
-        }).then(res => {
-            return res.json();
-        }).catch(err => {
-            console.log(err);
-            return { error: err };
         });
     },
 
     users: () => {
-        console.log(`${baseURL}/user`);
-        fetch(`${baseURL}/user`, {
+        return fetch(`${baseURL}/user`, {
             ...defaultGet,
-        }).then(res => {
-            console.log(res);
-            return res.json();
-        });
+        })
     }
 
 

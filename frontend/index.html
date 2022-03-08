@@ -12,33 +12,41 @@
     <!-- This is an example app structure, you can modify this as much as you choose --> 
     <header>
         <h1>lurkforwork.com</h1>
-        <nav>
-            <li class="nav-item" href="#login">Login</li>
-            <!-- <li class="nav-item" href="#register">Register</li> -->
-        </nav>
+        <div id="navbar" class="navbar">
+            <li><button class="nav-item" id="nav-login">Login</button></li>
+            <li><button class="nav-item" id="nav-register">Register</button></li>
+        </div>
     </header>
     <main role="main">
         <!-- app goes here -->
-        <div id="login-container" class="login-container">
+        <div id="login-screen" class="login-container">
             <form id="login" name="login">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email"/><br/>
+                <input type="email" name="email"/><br/>
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password"/><br/>
+                <input type="password" name="password"/><br/>
                 <input type="submit" value="Login"/>
             </form>
             <div class="error" id="login-error"></div>
         </div>
-        <!-- <div class="register-container">
+        <div id="register-screen" class="register-container hidden">
             <form id="register" name="register">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email"/><br/>
+                <input type="email" name="email"/><br/>
+                <label for="name">Name:</label>
+                <input type="text" name="name"/><br/>
                 <label for="password">Password:</label>
-                <input type="text" id="password" name="password"/><br/>
+                <input type="password" name="password"/><br/>
+                <label for="confirmpassword">Confirm Password:</label>
+                <input type="password" name="confirmpassword"/><br/>
                 <input type="submit" value="Register"/>
             </form>
-        </div> -->
-        <div id="dashboard-container" class="dashboard-container hidden">
+            <div class="error hidden" id="register-error">
+                <div class="register-error-message"></div>
+                <button class="error-close" id="register-error-close">X</button>
+            </div>
+        </div>
+        <div id="dashboard-screen" class="dashboard-container hidden">
             <button id="feed">Feed</button>
         </div>
     </main>
