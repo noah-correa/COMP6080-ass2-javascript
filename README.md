@@ -89,13 +89,13 @@ Each job should display:
 Milestone 3 focuses on a richer UX and will require some backend interaction.
 
 #### 2.3.1. Show likes on a job
-* Allow a user to see a list of all users who have liked a job. In terms of how it is displayed, consider your preferred user experience approach out of the watching 3 options:
+* Allow a user to see a list of all users who have liked a job. In terms of how it is displayed, consider your preferred user experience approach out of the following 3 options:
   * The list of names is visible on each job in the feed by default
   * The list of names is visible on a job in the feed if a show/hide toggle is clicked (hidden by default).
   * The list of names is visible in a popup, modal, or new screen, when a button/link is clicked on the feed.
 
 #### 2.3.2. Show comments on a job
-* Allow a user to see a list of all the comments on the job. Each comment should contain at minimum the user's name and their comment. In terms of how it is displayed, consider your preferred user experience approach out of the watching 3 options:
+* Allow a user to see a list of all the comments on the job. Each comment should contain at minimum the user's name and their comment. In terms of how it is displayed, consider your preferred user experience approach out of the following 3 options:
   * The list of names and comments are visible on each job in the feed by default
   * The list of names and comments are visible on a job in the feed if a show/hide toggle is clicked (hidden by default).
   * The list of names and comments are visible in a popup, modal, or new screen, when a button/link is clicked on the feed.
