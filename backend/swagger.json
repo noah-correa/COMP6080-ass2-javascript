@@ -99,6 +99,13 @@
           },
           "watcheeUserIds": {
             "$ref": "#/components/schemas/UserIds"
+          },
+          "jobs": {
+            "type": "array",
+            "description": "Array of job postings by this user",
+            "items": {
+              "$ref": "#/components/schemas/JobFull"
+            }
           }
         }
       },

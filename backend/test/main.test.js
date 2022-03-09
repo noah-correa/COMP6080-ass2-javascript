@@ -204,6 +204,7 @@ describe('User tests', () => {
       expect(userInfo.password).toBe(undefined);
       expect(userInfo.image).toBe(undefined);
       expect(userInfo.watcheeUserIds).toEqual(expect.arrayContaining([]));
+      expect(userInfo.jobs).toEqual(expect.arrayContaining([]));
     });
   });
 
@@ -539,6 +540,32 @@ describe('Job post tests', () => {
       expect(thisJob.comments).toEqual(expect.arrayContaining([]));
     });
 
+    it('ensure those new jobs appear on GET /job', async () => {
+      const { id } = await postTry(`/job`, 200, JOB1, await globals.ret2.token);
+      
+      await putTry(`/job`, 200, { id, image: JOB2.image }, await globals.ret2.token);
+
+      const jobs = (await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token)).filter(job => job.id === id);
+      expect(jobs.length).toBe(1);
+      const thisJob = jobs[0];
+
+      expect(thisJob.title).toBe(JOB1.title);
+      expect(thisJob.image).toBe(JOB2.image);
+      expect(thisJob.description).toBe(JOB1.description);
+      expect(thisJob.start).toBe(JOB1.start);
+      expect(thisJob.likes).toEqual(expect.arrayContaining([]));
+      expect(thisJob.comments).toEqual(expect.arrayContaining([]));
+
+      const userId = parseInt(globals.ret2.userId, 10);
+      const userInfo = await getTry(`/user?userId=${userId}`, 200, {}, await globals.ret1.token);
+      expect(userInfo.id).toBe(userId);
+      expect(userInfo.email).toBe(USER2.email);
+      expect(userInfo.name).toBe(USER2.name);
+      expect(userInfo.password).toBe(undefined);
+      expect(userInfo.image).toBe(undefined);
+      expect(userInfo.watcheeUserIds).toEqual(expect.arrayContaining([]));
+      expect(userInfo.jobs.length).toEqual(1);
+    });
   });
 
   describe('DELETE /job should', () => {

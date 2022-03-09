@@ -157,15 +157,8 @@ export const assertWatcherOfJobPost = (userId, jobPostId) => {
   }
 };
 
-export const getJobs = (authUserId, start) => dataLock((resolve, reject) => {
-  if (Number.isNaN(start)) {
-    return reject(new InputError('Invalid start value'));
-  } else if (start < 0) {
-    return reject(new InputError('Start value cannot be negative'));
-  }
-  const allPosts = Object.keys(posts).map(pid => posts[pid]);
-  const relevantPosts = allPosts.filter(p => Object.keys(users[p.creatorId].watcheeUserIds).includes(authUserId));
-  const expandedPosts = relevantPosts.map(post => ({
+const buildJobObject = (post) => {
+  return {
     ...post,
     likes: Object.keys(post.likes).map(i => ({
       userId: parseInt(i, 10),
@@ -181,7 +174,18 @@ export const getJobs = (authUserId, start) => dataLock((resolve, reject) => {
         comment: comment,
       };
     }),
-  }));
+  };
+};
+
+export const getJobs = (authUserId, start) => dataLock((resolve, reject) => {
+  if (Number.isNaN(start)) {
+    return reject(new InputError('Invalid start value'));
+  } else if (start < 0) {
+    return reject(new InputError('Start value cannot be negative'));
+  }
+  const allPosts = Object.keys(posts).map(pid => posts[pid]);
+  const relevantPosts = allPosts.filter(p => Object.keys(users[p.creatorId].watcheeUserIds).includes(authUserId));
+  const expandedPosts = relevantPosts.map(buildJobObject);
   resolve(expandedPosts.slice(start, start + 5));
 });
 
@@ -241,11 +245,13 @@ export const deleteJobPost = (authUserId, jobPostId) => dataLock((resolve, rejec
 ***************************************************************/
 
 export const getUser = (userId) => dataLock((resolve, reject) => {
+  const intid = parseInt(userId, 10);
   const userDetails = {
     ...users[userId],
     password: undefined,
-    id: parseInt(userId, 10),
-    watcheeUserIds: Object.keys(users[userId].watcheeUserIds).map(i => parseInt(i, 10))
+    id: intid,
+    watcheeUserIds: Object.keys(users[userId].watcheeUserIds).map(i => parseInt(i, 10)),
+    jobs: Object.keys(posts).map(pid => posts[pid]).filter(post => post.creatorId === intid),
   };
   resolve(userDetails);
 });
