@@ -16,6 +16,7 @@
 * 6th March: `/job/like` correctly documented as `PUT` instead of `POST`. Some minor updates to backend doc to be consistent (see the commit); 2.4.3. missing line about image; job/feed pagination added correctly
 * 7th March: Removed 2nd sentence of 2.5.2 as it does not apply.
 * 9th March: 2.4.1 Updates: updated from "watches" to "is watched by" to make it far simpler. If you tried to implement the previous description (much harder) we will still award the marks. Also added job's to a GET `/user`.
+* 10th March: Added extra non-required information to GET /user jobs for people wanting to make app nicer; GET `job/feed` now returns jobs sorted by createdAt date
 
 ## 1. Background & Motivation
 

@@ -435,24 +435,24 @@ describe('Job post tests', () => {
 
       jobs = await getTry(`/job/feed?start=0`, 200, {}, await globals.ret1.token);
       expect(jobs.length).toBe(5);
-      expect(jobs[0].title === JOB1.title);
-      expect(jobs[1].title === JOB2.title);
-      expect(jobs[2].title === JOB3.title);
-      expect(jobs[3].title === JOB1.title);
-      expect(jobs[4].title === JOB2.title);
+      expect(jobs[0].title).toBe(JOB3.title);
+      expect(jobs[1].title).toBe(JOB2.title);
+      expect(jobs[2].title).toBe(JOB1.title);
+      expect(jobs[3].title).toBe(JOB3.title);
+      expect(jobs[4].title).toBe(JOB2.title);
 
       jobs = await getTry(`/job/feed?start=5`, 200, {}, await globals.ret1.token);
       expect(jobs.length).toBe(5);
-      expect(jobs[0].title === JOB3.title);
-      expect(jobs[1].title === JOB1.title);
-      expect(jobs[2].title === JOB2.title);
-      expect(jobs[3].title === JOB3.title);
-      expect(jobs[4].title === JOB1.title);
+      expect(jobs[0].title).toBe(JOB1.title);
+      expect(jobs[1].title).toBe(JOB3.title);
+      expect(jobs[2].title).toBe(JOB2.title);
+      expect(jobs[3].title).toBe(JOB1.title);
+      expect(jobs[4].title).toBe(JOB3.title);
 
       jobs = await getTry(`/job/feed?start=10`, 200, {}, await globals.ret1.token);
       expect(jobs.length).toBe(2);
-      expect(jobs[0].title === JOB2.title);
-      expect(jobs[1].title === JOB3.title);
+      expect(jobs[0].title).toBe(JOB2.title);
+      expect(jobs[1].title).toBe(JOB1.title);
     });
 
   });
