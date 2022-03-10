@@ -20,8 +20,9 @@
     </header>
     <main role="main" class="align-items-center">
         <div class="content-container card align-items-center">
-            <!-- Login Screen -->
+            <!--* Login Screen *-->
             <div id="login-screen" class="login-container card-body">
+                <!-- Login Form -->
                 <form id="login" name="login">
                     <label for="email">Email:</label>
                     <input type="email" name="email"/><br/>
@@ -29,13 +30,16 @@
                     <input type="password" name="password"/><br/>
                     <input type="submit" value="Login"/>
                 </form>
+                <!-- Login Error -->
                 <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="login-error">
                     <span class="login-error-message"></span>
-                    <button class="error-close btn-close" data-bs-dismiss="alert" id="login-error-close" type="button"></button>
+                    <button class="error-close btn-close" id="login-error-close" type="button"></button>
                 </div>
             </div>
-            <!-- Register Screen -->
+
+            <!--* Register Screen *-->
             <div id="register-screen" class="register-container hidden">
+                <!-- Register Form -->
                 <form id="register" name="register">
                     <label for="email">Email:</label>
                     <input type="email" name="email"/><br/>
@@ -47,11 +51,14 @@
                     <input type="password" name="confirmpassword"/><br/>
                     <input type="submit" value="Register"/>
                 </form>
+                <!-- Register Error -->
                 <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="register-error">
                     <span class="register-error-message"></span>
-                    <button class="error-close btn-close" data-bs-dismiss="alert" id="register-error-close" type="button"></button>
+                    <button class="error-close btn-close" id="register-error-close" type="button"></button>
                 </div>
             </div>
+
+            <!--* Dashboard Screen *-->
             <div id="dashboard-screen" class="dashboard-container hidden">
                 <button id="feed">Feed</button>
             </div>
