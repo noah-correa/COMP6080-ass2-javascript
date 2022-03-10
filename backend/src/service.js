@@ -105,7 +105,6 @@ export const getUserIdFromEmail = email => {
 export const login = (email, password) => dataLock((resolve, reject) => {
   const userId = getUserIdFromEmail(email);
   if (userId !== undefined && users[userId].password === password) {
-    users[userId].sessionActive = true;
     resolve({
       token: jwt.sign({ userId, }, JWT_SECRET, { algorithm: 'HS256', }),
       userId: parseInt(userId, 10),
@@ -186,6 +185,7 @@ export const getJobs = (authUserId, start) => dataLock((resolve, reject) => {
   const allPosts = Object.keys(posts).map(pid => posts[pid]);
   const relevantPosts = allPosts.filter(p => Object.keys(users[p.creatorId].watcheeUserIds).includes(authUserId));
   const expandedPosts = relevantPosts.map(buildJobObject);
+  expandedPosts.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1)
   resolve(expandedPosts.slice(start, start + 5));
 });
 
@@ -251,7 +251,7 @@ export const getUser = (userId) => dataLock((resolve, reject) => {
     password: undefined,
     id: intid,
     watcheeUserIds: Object.keys(users[userId].watcheeUserIds).map(i => parseInt(i, 10)),
-    jobs: Object.keys(posts).map(pid => posts[pid]).filter(post => post.creatorId === intid),
+    jobs: Object.keys(posts).map(pid => posts[pid]).filter(post => post.creatorId === intid).map(buildJobObject),
   };
   resolve(userDetails);
 });
