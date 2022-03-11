@@ -99,6 +99,13 @@
           },
           "watcheeUserIds": {
             "$ref": "#/components/schemas/UserIds"
+          },
+          "jobs": {
+            "type": "array",
+            "description": "Array of job postings by this user",
+            "items": {
+              "$ref": "#/components/schemas/JobFull"
+            }
           }
         }
       },
@@ -166,6 +173,27 @@
         "type": "object",
         "description": "Basic details of the job posting",
         "properties": {
+          "title": {
+            "$ref": "#/components/schemas/JobTitle"
+          },
+          "image": {
+            "$ref": "#/components/schemas/JobImage"
+          },
+          "start": {
+            "$ref": "#/components/schemas/JobStart"
+          },
+          "description": {
+            "$ref": "#/components/schemas/JobDescription"
+          }
+        }
+      },
+      "JobBasicWithId": {
+        "type": "object",
+        "description": "Basic details of the job posting based on a unique id",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/JobId"
+          },
           "title": {
             "$ref": "#/components/schemas/JobTitle"
           },
@@ -536,7 +564,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/JobBasic"
+                "$ref": "#/components/schemas/JobBasicWithId"
               }
             }
           }
@@ -703,8 +731,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get a list of all the users",
-        "description": "Returns basic details of all the users",
+        "summary": "Get the details of a specific user",
+        "description": "Returns basic details of a specific user",
         "parameters": [
           {
             "$ref": "#/components/parameters/Authorization"
@@ -808,7 +836,7 @@
                     "$ref": "#/components/parameters/UserEmail"
                   },
                   "turnon": {
-                    "$ref": "#/components/parameters/TurnOn"
+                    "$ref": "#/components/schemas/TurnOn"
                   }
                 }
               }
