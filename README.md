@@ -17,6 +17,7 @@
 * 7th March: Removed 2nd sentence of 2.5.2 as it does not apply.
 * 9th March: 2.4.1 Updates: updated from "watches" to "is watched by" to make it far simpler. If you tried to implement the previous description (much harder) we will still award the marks. Also added job's to a GET `/user`.
 * 10th March: Added extra non-required information to GET /user jobs for people wanting to make app nicer; GET `job/feed` now returns jobs sorted by createdAt date
+* 12th March: Removed the "optional" part of fields for the job to avoid confusion
 
 ## 1. Background & Motivation
 
@@ -77,13 +78,13 @@ Each job should display:
 2. When it was posted
   * If the job was posted today (in the last 24 hours), it should display how many hours and minutes ago it was posted
   * If the job was posted more than 24 hours ago, it should just display the date DD/MM/YYYY that it was posted
-3. The job content itself. The job content contains a few optional fields:
+3. The job content itself. The job content includes the following:
   * An image to describe the job (jpg in base64 format)
   * A title for the new job (just as a string)
   * A starting date for the job (just as a string)
-4. How many likes it has (or none)
-5. The job description text
-6. How many comments the job post has
+  * How many likes it has (or none)
+  * The job description text
+  * How many comments the job post has
 
 ### 2.3. Milestone 3 - Advanced Feed (10%)
  
