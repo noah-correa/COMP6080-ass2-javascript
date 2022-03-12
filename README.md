@@ -18,6 +18,7 @@
 * 9th March: 2.4.1 Updates: updated from "watches" to "is watched by" to make it far simpler. If you tried to implement the previous description (much harder) we will still award the marks. Also added job's to a GET `/user`.
 * 10th March: Added extra non-required information to GET /user jobs for people wanting to make app nicer; GET `job/feed` now returns jobs sorted by createdAt date
 * 12th March: Removed the "optional" part of fields for the job to avoid confusion; 2.4.1 updated to say "shows total number of users they are watched by" instead of "they watch". This makes it much easier. More info [here](https://edstem.org/au/courses/7608/discussion/745353)
+* 13th March: Adjusted the weightings of each milestone to more accurately reflect the milestones summing to 70%
 
 ## 1. Background & Motivation
 
@@ -39,7 +40,7 @@ Instead of providing visuals of what the frontend (your task) should look like, 
 
 The requirements describe a series of **screens**. Screens can be popups/modals, or entire pages. The use of that language is so that you can choose how you want it to be displayed. A screen is essentially a certain state of your web-based application.
 
-### 2.1. Milestone 1 - Registration & Login (10%)
+### 2.1. Milestone 1 - Registration & Login (9.4%)
 
 This focuses on the basic user interface to register and log in to the site.
 
@@ -63,7 +64,7 @@ This focuses on the basic user interface to register and log in to the site.
  * Whenever the frontend or backend produces an error, there shall be an error popup on the screen with a message (either a message derived from the backend error response, or one meaningfully created on the frontend).
  * This popup can be closed/removed/deleted by pressing an "x" or "close" button.
 
-### 2.2. Milestone 2 - Basic Feed (15%)
+### 2.2. Milestone 2 - Basic Feed (14%)
 
 Milestone 2 focuses on fetching feed data from the API. A feed and it's associated content should only be accessible to logged in users.
 
@@ -86,7 +87,7 @@ Each job should display:
   * The job description text
   * How many comments the job post has
 
-### 2.3. Milestone 3 - Advanced Feed (10%)
+### 2.3. Milestone 3 - Advanced Feed (9.4%)
  
 Milestone 3 focuses on a richer UX and will require some backend interaction.
 
@@ -110,7 +111,7 @@ Milestone 3 focuses on a richer UX and will require some backend interaction.
 * Users can page between sets of results in the feed using the position token with (`GET /job/feed`).
 * Note: You will automatically receive marks for this section if you end up implementing the infinite scroll alternative in a later milestone.
 
-### 2.4. Milestone 4 - Other users & profiles (15%)
+### 2.4. Milestone 4 - Other users & profiles (14%)
 
 Milestone 4 focuses predominately on user profiles and how users interact with them.
 
@@ -137,7 +138,7 @@ Milestone 4 focuses predominately on user profiles and how users interact with t
   * If the logged in user already watches this person, an unwatch button should exist.
 * Somewhere on the feed screen a button should also exist that prompts the enter to enter an email address in a popup. When entered, the email address is sent to `PUT /user/watch` to watch that particular user.
 
-### 2.5. Milestone 5 - Adding & updating content (10%)
+### 2.5. Milestone 5 - Adding & updating content (9.3%)
 
 Milestone 5 focuses on addition and removing both content and comments.
 
@@ -151,7 +152,7 @@ Milestone 5 focuses on addition and removing both content and comments.
 #### 2.5.3. Leaving comments
 * Users can write comments on "jobs" via (`POST /job/comment`)
 
-### 2.6. Milestone 6 - Challenge Components (`advanced`) (10%)
+### 2.6. Milestone 6 - Challenge Components (`advanced`) (9.3%)
 
 #### 2.6.1. Infinite Scroll
 * Instead of pagination, users an infinitely scroll through results. For infinite scroll to be properly implemented you need to progressively load jobs as you scroll. 
@@ -166,7 +167,7 @@ Milestone 5 focuses on addition and removing both content and comments.
 
 _No course assistance in lectures will be provided for this component, you should do your own research as to how to implement this. There are extensive resources online._
 
-### 2.7. Milestone 7 - Very Challenge Components (`advanced *= 2`) (5%)
+### 2.7. Milestone 7 - Very Challenge Components (`advanced *= 2`) (4.6%)
 
 #### 2.7.1. Static feed offline access
 * Users can access the most recent feed they've loaded even without an internet connection.
