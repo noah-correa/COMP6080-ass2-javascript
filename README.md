@@ -17,7 +17,7 @@
 * 7th March: Removed 2nd sentence of 2.5.2 as it does not apply.
 * 9th March: 2.4.1 Updates: updated from "watches" to "is watched by" to make it far simpler. If you tried to implement the previous description (much harder) we will still award the marks. Also added job's to a GET `/user`.
 * 10th March: Added extra non-required information to GET /user jobs for people wanting to make app nicer; GET `job/feed` now returns jobs sorted by createdAt date
-* 12th March: Removed the "optional" part of fields for the job to avoid confusion
+* 12th March: Removed the "optional" part of fields for the job to avoid confusion; 2.4.1 updated to say "shows total number of users they are watched by" instead of "they watch". This makes it much easier. More info [here](https://edstem.org/au/courses/7608/discussion/745353)
 
 ## 1. Background & Motivation
 
