@@ -20,7 +20,8 @@
       "password": "august",
       "watcheeUserIds": {
         "65687": true
-      }
+      },
+      "sessionActive": true
     },
     "97467": {
       "email": "james@email.com",

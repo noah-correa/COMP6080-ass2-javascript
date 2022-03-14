@@ -11,4 +11,34 @@ html, body {
     display: none;
 }
 
+.job-list {
+    list-style: none;
+}
+
+.job-posted-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.job-interactions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.job-img-description {
+    display: flex;
+}
+
+.job-img {
+    align-self: center;
+    margin-right: 20px;
+}
+
+.job-description {
+    display: inline;
+}
+
+.job-start-date {
+    text-align: center;
+}
 

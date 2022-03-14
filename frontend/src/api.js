@@ -68,10 +68,14 @@ const apiMethods = {
         });
     },
 
-    users: () => {
-        return fetch(`${baseURL}/user`, {
+    users: (token, userId) => {
+        return fetch(`${baseURL}/user?userId=${userId}`, {
             ...defaultGet,
-        })
+            headers: { 
+                ...defaultGet.headers,
+                "Authorization": token,
+            },
+        });
     }
 
 

@@ -16,6 +16,7 @@
             <h1 class="navbar">lurkforwork.com</h1>
             <a class="nav-link" id="nav-login" href="#">Login</a>
             <a class="nav-link" id="nav-register" href="#">Register</a>
+            <a class="nav-link" id="nav-dashboard" href="#">Dashboard</a>
         </div>
     </header>
     <main role="main" class="align-items-center">
@@ -38,7 +39,7 @@
             </div>
 
             <!--* Register Screen *-->
-            <div id="register-screen" class="register-container hidden">
+            <div id="register-screen" class="register-container card-body hidden">
                 <!-- Register Form -->
                 <form id="register" name="register">
                     <label for="email">Email:</label>
@@ -59,8 +60,39 @@
             </div>
 
             <!--* Dashboard Screen *-->
-            <div id="dashboard-screen" class="dashboard-container hidden">
-                <button id="feed">Feed</button>
+            <div id="dashboard-screen" class="dashboard-container card-body hidden">
+                <!-- <button id="jobs">Refresh Jobs</button> -->
+                <div class="jobs-container" id="jobs-container">
+                    <ul class="job-list list-group" id="job-list">
+                        <li class="hidden" id="job-item-template">
+                            <div class="job-card-template card">
+                                <div class="card-body">
+                                    <h1 class="job-name"></h1>
+                                    <div class="job-posted-info">
+                                        <h4 class="job-creator"></h4>
+                                        <h4 class="job-posted-date"></h4>
+                                    </div>
+                                    <hr/>
+                                    <div class="job-start-date"></div>
+                                    <div class="job-img-description">
+                                        <img class="job-img"/>
+                                        <div class="job-description"></div>
+                                    </div>
+                                    <hr/>
+                                    <div class="job-interactions">
+                                        <div class="job-likes"></div>
+                                        <div class="job-comments"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Dashboard Error -->
+                <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="dashboard-error">
+                    <span class="dashboard-error-message"></span>
+                    <button class="error-close btn-close" id="dashboard-error-close" type="button"></button>
+                </div>
             </div>
         </div>
     </main>
