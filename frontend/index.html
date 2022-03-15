@@ -21,16 +21,16 @@
         </div>
     </header>
     <main role="main" class="align-items-center">
-        <div class="content-container card align-items-center">
+        <div class="content-container card flex-col-center">
             <!--* Login Screen *-->
             <div id="login-screen" class="login-container card-body">
                 <!-- Login Form -->
-                <form id="login" name="login">
-                    <label for="email">Email:</label>
+                <form id="login" name="login" class="flex-col-center">
+                    <label for="email">Email</label>
                     <input type="email" name="email"/><br/>
-                    <label for="password">Password:</label>
+                    <label for="password">Password</label>
                     <input type="password" name="password"/><br/>
-                    <input type="submit" value="Login"/>
+                    <input class="btn btn-primary" type="submit" value="Login"/>
                 </form>
                 <!-- Login Error -->
                 <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="login-error">
@@ -42,7 +42,7 @@
             <!--* Register Screen *-->
             <div id="register-screen" class="register-container card-body hidden">
                 <!-- Register Form -->
-                <form id="register" name="register">
+                <form id="register" name="register" class="flex-col-center">
                     <label for="email">Email:</label>
                     <input type="email" name="email"/><br/>
                     <label for="name">Name:</label>
@@ -63,7 +63,12 @@
             <!--* Dashboard Screen *-->
             <div id="dashboard-screen" class="dashboard-container card-body hidden">
                 <!-- Job List -->
-                <div class="jobs-container" id="jobs-container">
+                <div class="jobs-container flex-col-center" id="jobs-container">
+                    <div class="feed-page-container" id="job-page">
+                        <button class="page-back btn btn-outline-primary"><</button>
+                        <span class="page-number">Page 1</span>
+                        <button class="page-next btn btn-outline-primary">></button>
+                    </div>
                     <ul class="job-list list-group" id="job-list">
                         <li class="hidden" id="job-item-template">
                             <div class="job-card-template card">

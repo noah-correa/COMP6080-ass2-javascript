@@ -221,7 +221,7 @@ const constructJobItem = (user, job) => {
 
     // Set inital icon state
     const icon = heartButton.firstChild;
-    const userLiked = job.likes.find((like) => {
+    let userLiked = job.likes.find((like) => {
         return like.userId === state.user.userId;
     });
     if (userLiked) {
@@ -233,8 +233,7 @@ const constructJobItem = (user, job) => {
     // Heart Button Click listener
     heartButton.addEventListener('click', (event) => {
         event.preventDefault();
-        const tryLike = userLiked ? false : true;
-        API.likeJob(state.user.userToken, job.id, tryLike).then(res => {
+        API.likeJob(state.user.userToken, job.id, !userLiked).then(res => {
             if (res.ok) return res.json();
             else {
                 if (res.status === 400) {
@@ -245,11 +244,12 @@ const constructJobItem = (user, job) => {
             }
         }).then(res => {
             if (res) {
-                if (tryLike) {
-                    icon.textContent = 'favorite';
-                } else {
+                if (userLiked) {
                     icon.textContent = 'favorite_border';
+                } else {
+                    icon.textContent = 'favorite';
                 }
+                userLiked = !userLiked;
             }
         });
     })
@@ -320,38 +320,75 @@ const constructJobItem = (user, job) => {
     return jobTemplate;
 }
 
+const constructJobFeed = (feed, page) => {
+    API.getJobFeed(state.user.userToken, page).then(res => {
+        // console.log(res);
+        if (res.ok) return res.json();
+        else {
+            if (res.status === 403) {
+                showError('dashboard-error', 'Invalid token');
+                return false;
+            }
+        }
+    }).then(res => {
+        if (res.length === 0) { 
+            // Clear Job List
+            [...feed.children].forEach((child) => {
+                if (child.id !== 'job-item-template') feed.removeChild(child);
+            })
+
+            return false;
+        }
+        if (res) {
+            // Clear Job List
+            [...feed.children].forEach((child) => {
+                if (child.id !== 'job-item-template') feed.removeChild(child);
+            })
+            res.forEach((job, index) => {
+                // console.log(job);
+                findUser(job.creatorId).then(userJson => {
+                    if (userJson) {
+                        const newJob = constructJobItem(userJson, job);
+                        newJob.setAttribute('key', index);
+                        feed.appendChild(newJob);
+                    }
+                });
+            });
+            return true;
+        }
+        return false;
+    })
+}
+
 
 //* Dashboard Screen
 const loadDashboard = () => {
     if (state.user.isLoggedIn) {
         const feedList = document.getElementById('job-list');
+        const [pageBack, pageNum, pageNext] = document.getElementById('job-page').children;
 
-        // Clear Job List
-        [...feedList.children].forEach((child) => {
-            if (child.id !== 'job-item-template') feedList.removeChild(child);
-        })
+        let currPage = 1;
+        let jobsPerPage = 3;    // TODO: test with more jobs
+        constructJobFeed(feedList, jobsPerPage * (currPage-1));
+        
+        pageBack.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (currPage === 1) return;
+            const made = constructJobFeed(feedList, jobsPerPage * (currPage-2));
+            if (made) {
+                currPage -= 1;
+                pageNum.textContent = `Page ${currPage}`;
+            }
+        });
 
-        API.getJobFeed(state.user.userToken).then(res => {
-            if (res.ok) return res.json();
-            else {
-                if (res.status === 403) {
-                    showError('dashboard-error', 'Invalid token');
-                }
+        pageNext.addEventListener('click', (event) => {
+            event.preventDefault();
+            const made = constructJobFeed(feedList, jobsPerPage * (currPage));
+            if (made) {
+                currPage += 1;
+                pageNum.textContent = `Page ${currPage}`;
             }
-        }).then(res => {
-            if (res) {
-                res.forEach((job, index) => {
-                    console.log(job);
-                    findUser(job.creatorId).then(userJson => {
-                        if (userJson) {
-                            const newJob = constructJobItem(userJson, job);
-                            newJob.setAttribute('key', index);
-                            feedList.appendChild(newJob);
-                        }
-                    });
-                });
-            }
-        })
+        });
     }
 }
 

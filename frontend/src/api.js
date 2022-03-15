@@ -48,8 +48,8 @@ const apiMethods = {
         return fetch(`${baseURL}/auth/register`, buildRequest('POST', undefined, data));
     },
 
-    getJobFeed: (token) => {
-        return fetch(`${baseURL}/job/feed?start=0`, buildRequest('GET', token));
+    getJobFeed: (token, page=0) => {
+        return fetch(`${baseURL}/job/feed?start=${page}`, buildRequest('GET', token));
     },
 
     getUser: (token, userId) => {
