@@ -61,7 +61,6 @@ const apiMethods = {
             id: id,
             turnon: like
         };
-        console.log(buildRequest('PUT', token, data));
         return fetch(`${baseURL}/job/like`, buildRequest('PUT', token, data));
     }
 

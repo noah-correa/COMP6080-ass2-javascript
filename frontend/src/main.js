@@ -211,13 +211,48 @@ const constructJobItem = (user, job) => {
     // Description
     imgDesc.children[1].textContent = job.description;
     // Interactions
-    const [likesButton, commentsButton] = interactions.children;
+    const [jobLikesContainer, commentsButton] = interactions.children;
+    const [heartButton, likesButton] = jobLikesContainer.children;
     likesButton.textContent = `${job.likes.length} like${job.likes.length === 1 ? "" : "s"}`
     commentsButton.textContent = `${job.comments.length} comment${job.comments.length === 1 ? "" : "s"}`
 
     // Likes/Comments Popup
     const [likesPopup, commentsPopup] = popups.children;
-    // console.log(popups, likesPopup, commentsPopup);
+
+    // Set inital icon state
+    const icon = heartButton.firstChild;
+    const userLiked = job.likes.find((like) => {
+        return like.userId === state.user.userId;
+    });
+    if (userLiked) {
+        icon.textContent = 'favorite';
+    } else {
+        icon.textContent = 'favorite_border';
+    }
+
+    // Heart Button Click listener
+    heartButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const tryLike = userLiked ? false : true;
+        API.likeJob(state.user.userToken, job.id, tryLike).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 400) {
+                    showError('dashboard-error', 'Invalid input');
+                } else if (res.status === 403) {
+                    showError('dashboard-error', 'Invalid token');
+                }
+            }
+        }).then(res => {
+            if (res) {
+                if (tryLike) {
+                    icon.textContent = 'favorite';
+                } else {
+                    icon.textContent = 'favorite_border';
+                }
+            }
+        });
+    })
 
     // Like Button Click listener
     likesButton.addEventListener('click', (event) => {

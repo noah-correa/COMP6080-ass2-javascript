@@ -70,3 +70,8 @@ html, body {
 .job-interactions-popup > ul {
     width: 100%;
 }
+
+.job-heart {
+    border: none;
+    background-color: transparent;
+}
