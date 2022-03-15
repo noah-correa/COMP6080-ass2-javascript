@@ -64,7 +64,7 @@ const showError = (id, message) => {
 
 //* User Function
 const findUser = (userId) => {
-    return API.users(state.user.userToken, userId).then(res => {
+    return API.getUser(state.user.userToken, userId).then(res => {
         if (res.ok) return res.json();
         else {
             if (res.status === 403) {
@@ -188,7 +188,7 @@ const constructJobItem = (user, job) => {
     jobTemplate.setAttribute('id', `job-${job.id}`);
     jobTemplate.classList.remove('hidden');
 
-    const [title, postedInfo, hr, startDate, imgDesc, hr2, interactions] = jobTemplate.children[0].children[0].children;
+    const [title, postedInfo, hr, startDate, imgDesc, hr2, interactions, popups] = jobTemplate.children[0].children[0].children;
     // Title
     title.textContent = `${job.title}`;
     // Posted Info
@@ -201,8 +201,43 @@ const constructJobItem = (user, job) => {
     // Description
     imgDesc.children[1].textContent = job.description;
     // Interactions
-    interactions.children[0].textContent = `${job.likes.length} like${job.likes.length === 1 ? "" : "s"}`
-    interactions.children[1].textContent = `${job.comments.length} comment${job.comments.length === 1 ? "" : "s"}`
+    const [likesButton, commentsButton] = interactions.children;
+    likesButton.textContent = `${job.likes.length} like${job.likes.length === 1 ? "" : "s"}`
+    commentsButton.textContent = `${job.comments.length} comment${job.comments.length === 1 ? "" : "s"}`
+
+    // Likes/Comments Popup
+    const [likesPopup, commentsPopup] = popups.children;
+    // console.log(popups, likesPopup, commentsPopup);
+
+
+    likesButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const popupsState = popups.getAttribute('data-popup');
+        if (popupsState === 'none') {
+            popups.setAttribute('data-popup', 'likes');
+            likesPopup.classList.remove('hidden');
+            job.likes.forEach((like, index) => {
+                // Create a new like list item
+                const newLike = document.createElement('li');
+                newLike.setAttribute('key', index);
+                newLike.classList.add('list-group-item');
+                newLike.textContent = `${like.userName}`;
+                likesPopup.appendChild(newLike);
+            })
+        } else if (popupsState === 'likes') {
+            popups.setAttribute('data-popup', 'none');
+            // Clear Likes list
+            [...likesPopup.children].forEach((like) => {
+                likesPopup.removeChild(like);
+            });
+            likesPopup.classList.add('hidden');
+
+        }
+    })
+
+    
+
+
 
     return jobTemplate;
 }
@@ -218,7 +253,7 @@ const loadDashboard = () => {
             if (child.id !== 'job-item-template') feedList.removeChild(child);
         })
 
-        API.feed(state.user.userToken).then(res => {
+        API.getJobFeed(state.user.userToken).then(res => {
             if (res.ok) return res.json();
             else {
                 if (res.status === 403) {
@@ -227,11 +262,12 @@ const loadDashboard = () => {
             }
         }).then(res => {
             if (res) {
-                res.forEach((job) => {
+                res.forEach((job, index) => {
                     console.log(job);
                     findUser(job.creatorId).then(userJson => {
                         if (userJson) {
                             const newJob = constructJobItem(userJson, job);
+                            newJob.setAttribute('key', index);
                             feedList.appendChild(newJob);
                         }
                     });

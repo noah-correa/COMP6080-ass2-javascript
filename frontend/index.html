@@ -80,8 +80,12 @@
                                     </div>
                                     <hr/>
                                     <div class="job-interactions">
-                                        <div class="job-likes"></div>
-                                        <div class="job-comments"></div>
+                                        <button class="job-likes btn btn-link" type="button"></button>
+                                        <button class="job-comments btn btn-link" type="button"></button>
+                                    </div>
+                                    <div class="job-interactions-popup" data-popup="none">
+                                        <ul class="job-likes-popup list-group hidden"></ul>
+                                        <ul class="job-comments-popup list-group hidden"></ul>
                                     </div>
                                 </div>
                             </div>
@@ -99,6 +103,7 @@
     <footer class="text-center">
         <p>&copy; lurkforwork.com 2022</p>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script type="module" src="src/main.js"></script>
 </body>
 </html>
