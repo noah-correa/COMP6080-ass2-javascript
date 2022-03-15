@@ -15,6 +15,12 @@ html, body {
     list-style: none;
 }
 
+.job-item > div {
+    display: flex;
+    flex-direction: column;
+    /* border: 1px solid red; */
+}
+
 .job-posted-info {
     display: flex;
     justify-content: space-between;
@@ -29,12 +35,12 @@ html, body {
     display: flex;
 }
 
-.job-img {
+.job-img-description .job-img {
     align-self: center;
     margin-right: 20px;
 }
 
-.job-description {
+.job-img-description .job-description {
     display: inline;
 }
 
@@ -42,3 +48,25 @@ html, body {
     text-align: center;
 }
 
+.job-interactions-popup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    /* bottom: 40px; */
+    top: 20%;
+    /* left: 0px; */
+    /* margin: 20px;  */
+    left:0;
+    right:0;
+    margin-left:auto;
+    margin-right:auto;
+    width: 90%;
+    max-height:80%;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+.job-interactions-popup > ul {
+    width: 100%;
+}

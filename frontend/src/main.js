@@ -163,6 +163,9 @@ const handleRegister = (event) => {
 
 
 
+
+
+
 const formatDate = (date) => {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -182,13 +185,20 @@ const getJobDate = (timeCreated) => {
     }
 }
 
+const clearList = (parent) => {
+    [...parent.children].forEach((child) => {
+        parent.removeChild(child);
+    })
+}
+
 const constructJobItem = (user, job) => {
     const jobTemplate = document.getElementById('job-item-template').cloneNode(true);
     jobTemplate.removeAttribute('id');
     jobTemplate.setAttribute('id', `job-${job.id}`);
+    jobTemplate.classList.add('job-item');
     jobTemplate.classList.remove('hidden');
 
-    const [title, postedInfo, hr, startDate, imgDesc, hr2, interactions, popups] = jobTemplate.children[0].children[0].children;
+    const [title, postedInfo, hr, startDate, imgDesc, hr2, popups, interactions] = jobTemplate.children[0].children[0].children;
     // Title
     title.textContent = `${job.title}`;
     // Posted Info
@@ -209,7 +219,7 @@ const constructJobItem = (user, job) => {
     const [likesPopup, commentsPopup] = popups.children;
     // console.log(popups, likesPopup, commentsPopup);
 
-
+    // Like Button Click listener
     likesButton.addEventListener('click', (event) => {
         event.preventDefault();
         const popupsState = popups.getAttribute('data-popup');
@@ -227,17 +237,50 @@ const constructJobItem = (user, job) => {
         } else if (popupsState === 'likes') {
             popups.setAttribute('data-popup', 'none');
             // Clear Likes list
-            [...likesPopup.children].forEach((like) => {
-                likesPopup.removeChild(like);
-            });
+            clearList(likesPopup);
             likesPopup.classList.add('hidden');
 
         }
     })
 
-    
+    // Like Button Blur listener
+    likesButton.addEventListener('blur', (event) => {
+        event.preventDefault();
+        popups.setAttribute('data-popup', 'none');
+        clearList(likesPopup);
+        likesPopup.classList.add('hidden');
+    })
 
+    // Comment Button 
+    commentsButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const popupsState = popups.getAttribute('data-popup');
+        if (popupsState === 'none') {
+            popups.setAttribute('data-popup', 'comments');
+            commentsPopup.classList.remove('hidden');
+            job.comments.forEach((comment, index) => {
+                // Create a new like list item
+                const newComment = document.createElement('li');
+                newComment.setAttribute('key', index);
+                newComment.classList.add('list-group-item');
+                newComment.textContent = `${comment.userName}: ${comment.comment}`;
+                commentsPopup.appendChild(newComment);
+            })
+        } else if (popupsState === 'comments') {
+            popups.setAttribute('data-popup', 'none');
+            // Clear Comments list
+            clearList(commentsPopup);
+            commentsPopup.classList.add('hidden');
+        }
+    })
 
+    // Comment Button
+    commentsButton.addEventListener('blur', (event) => {
+        event.preventDefault();
+        popups.setAttribute('data-popup', 'none');
+        clearList(commentsPopup);
+        commentsPopup.classList.add('hidden');
+    })
 
     return jobTemplate;
 }
