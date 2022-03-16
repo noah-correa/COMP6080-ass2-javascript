@@ -2,6 +2,7 @@ import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
 import API from './api.js';
+import apiMethods from './api.js';
 
 
 
@@ -31,16 +32,18 @@ const showScreen = (id) => {
     }
 }
 
-const changeScreen = (id, cb=undefined) => {
+const changeScreen = (id, cb=undefined, args=undefined) => {
     try {
         hideScreen(state.currentScreen);
         showScreen(id);
-        if (cb) cb();
+        if (args) cb(...args);
+        else if (cb) cb();
     } catch {
         console.log("Error: Cannot change screens")
     }
 }
 // #endregion
+
 
 //* Error helper functions
 // #region
@@ -62,6 +65,7 @@ const showError = (id, message) => {
 }
 // #endregion
 
+
 //* User Function
 const findUser = (userId) => {
     return API.getUser(state.user.userToken, userId).then(res => {
@@ -76,6 +80,7 @@ const findUser = (userId) => {
 
 
 //* Navbar Functions
+// #region
 const handleNavLogin = (event) => {
     event.preventDefault();
     if (!state.user.isLoggedIn) {
@@ -100,11 +105,11 @@ const handleNavDashboard = (event) => {
         document.title = "LurkForWork - Dashboard";
     }
 }
-
-
+// #endregion
 
 
 //* Login Screen
+// #region
 const handleLogin = (event) => {
     event.preventDefault();
     const { email, password } = document.forms.login;
@@ -127,9 +132,11 @@ const handleLogin = (event) => {
         }
     });
 }
+// #endregion
 
 
 //* Register Screen
+// #region
 const handleRegister = (event) => {
     event.preventDefault();
     const { email, name, password, confirmpassword } = document.forms.register;
@@ -159,13 +166,11 @@ const handleRegister = (event) => {
         }
     });
 }
+// #endregion
 
 
-
-
-
-
-
+// Dashboard helper functions
+// #region
 const formatDate = (date) => {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -188,21 +193,22 @@ const getJobDate = (timeCreated) => {
 const clearList = (parent) => {
     [...parent.children].forEach((child) => {
         parent.removeChild(child);
-    })
+    });
 }
 
 const constructJobItem = (user, job) => {
     const jobTemplate = document.getElementById('job-item-template').cloneNode(true);
     jobTemplate.removeAttribute('id');
     jobTemplate.setAttribute('id', `job-${job.id}`);
-    jobTemplate.classList.add('job-item');
-    jobTemplate.classList.remove('hidden');
+    // jobTemplate.classList.add('job-item');
+    // jobTemplate.classList.remove('hidden');
 
-    const [title, postedInfo, hr, startDate, imgDesc, hr2, popups, interactions] = jobTemplate.children[0].children[0].children;
+    const [title, postedInfo, hr, startDate, imgDesc, hr2, popups, interactions] = jobTemplate.children;
     // Title
     title.textContent = `${job.title}`;
     // Posted Info
-    postedInfo.children[0].textContent = `${user.name}`;
+    postedInfo.children[0].children[0].textContent = `${user.name}`;
+    postedInfo.children[0].setAttribute('id', `profile-${user.id}`);
     postedInfo.children[1].textContent = `Posted: ${getJobDate(job.createdAt)}`;
     // Start Date
     startDate.textContent = `Start date: ${formatDate(new Date(job.start))}`
@@ -215,12 +221,17 @@ const constructJobItem = (user, job) => {
     const [heartButton, likesButton] = jobLikesContainer.children;
     likesButton.textContent = `${job.likes.length} like${job.likes.length === 1 ? "" : "s"}`
     commentsButton.textContent = `${job.comments.length} comment${job.comments.length === 1 ? "" : "s"}`
+    // Poster Profile Button
+    postedInfo.children[0].addEventListener('click', (event) => {
+        event.preventDefault();
+        changeScreen('profile-screen', loadProfileScreen, [user.id]);
+    })
 
     // Likes/Comments Popup
     const [likesPopup, commentsPopup] = popups.children;
 
     // Set inital icon state
-    const icon = heartButton.firstChild;
+    const icon = heartButton.children[0];
     let userLiked = job.likes.find((like) => {
         return like.userId === state.user.userId;
     });
@@ -333,20 +344,22 @@ const constructJobFeed = (feed, page) => {
     }).then(res => {
         if (res.length === 0) { 
             // Clear Job List
-            [...feed.children].forEach((child) => {
-                if (child.id !== 'job-item-template') feed.removeChild(child);
-            })
-
+            clearList(feed);
             return false;
         }
         if (res) {
             // Clear Job List
-            [...feed.children].forEach((child) => {
-                if (child.id !== 'job-item-template') feed.removeChild(child);
-            })
+            clearList(feed);
             res.forEach((job, index) => {
                 // console.log(job);
-                findUser(job.creatorId).then(userJson => {
+                API.getUser(state.user.userToken, job.creatorId).then(res => {
+                    if (res.ok) return res.json();
+                    else {
+                        if (res.status === 403) {
+                            showError('dashboard-screen', 'Invalid token');
+                        }
+                    }
+                }).then(userJson => {
                     if (userJson) {
                         const newJob = constructJobItem(userJson, job);
                         newJob.setAttribute('key', index);
@@ -359,9 +372,10 @@ const constructJobFeed = (feed, page) => {
         return false;
     })
 }
-
+// #endregion
 
 //* Dashboard Screen
+// #region
 const loadDashboard = () => {
     if (state.user.isLoggedIn) {
         const feedList = document.getElementById('job-list');
@@ -391,6 +405,118 @@ const loadDashboard = () => {
         });
     }
 }
+// #endregion
+
+
+
+//* Profile Screen
+const constructProfileJob = (job, name) => {
+    const profileJobTemplate = document.getElementById('profile-job-item-template').cloneNode(true);
+    profileJobTemplate.removeAttribute('id');
+    profileJobTemplate.setAttribute('id', `job-${job.id}`);
+    // profileJobTemplate.classList.add('job-item');
+    // profileJobTemplate.classList.remove('hidden');
+
+    const [title, postedInfo, hr, startDate, imgDesc] = profileJobTemplate.children;
+    // Title
+    title.textContent = `${job.title}`;
+    // Posted Info
+    postedInfo.children[0].children[0].textContent = `${name}`;
+    postedInfo.children[0].setAttribute('id', `profile-${job.creatorId}`);
+    postedInfo.children[1].textContent = `Posted: ${getJobDate(job.createdAt)}`;
+    // Start Date
+    startDate.textContent = `Start date: ${formatDate(new Date(job.start))}`
+    // Image
+    imgDesc.children[0].setAttribute('src', job.image);
+    // Description
+    imgDesc.children[1].textContent = job.description;
+    return profileJobTemplate;
+}
+
+const constructProfileWatchee = (id, name) => {
+    const watcheeTemplate = document.getElementById('profile-watchee-item-template').cloneNode(true);
+    watcheeTemplate.removeAttribute('id');
+    watcheeTemplate.setAttribute('id', `profile-${id}`);
+    const profileButton = watcheeTemplate.children[0];
+    // console.log(watcheeTemplate.children[0]);
+    profileButton.textContent = name;
+    profileButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        changeScreen('profile-screen', loadProfileScreen, [id]);
+    });
+    // console.log(watcheeTemplate);
+
+    return watcheeTemplate;
+}
+
+const loadProfileScreen = (id) => {
+    API.getUser(state.user.userToken, id).then(res => {
+        if (res.ok) return res.json();
+        else {
+            if (res.status === 403) {
+                showError('profile-error', "Invalid Token");
+            }
+        }
+    }).then(res => {
+        if (res) {
+            // console.log(res);
+            // console.log(document.getElementById('profile-container').children);
+            const [nameEmailImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
+            const [nameEmail, img] = nameEmailImg.children;
+            nameEmail.children[0].firstChild.textContent = res.name;
+            nameEmail.children[1].firstChild.textContent = res.email;
+            if (res.image) img.children[1].setAttribute('src', res.image);
+            
+            // Jobs List
+            clearList(jobs);
+            if (res.watcheeUserIds.length === 0) {
+                const noJobs = document.createElement('li');
+                noJobs.classList.add('list-group-item');
+                noJobs.textContent = "No jobs created";
+                jobs.appendChild(noJobs);
+            } else {
+                res.jobs.forEach((job, index) => {
+                    // const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
+                    // newWatchee.setAttribute('key', index);
+                    // jobs.appendChild(newWatchee);
+                    const newJob = constructProfileJob(job, res.name);
+                    newJob.setAttribute('key', index);
+                    jobs.appendChild(newJob);
+                });
+            }
+
+
+
+            // Watchee List
+            clearList(watchedBy);
+            if (res.watcheeUserIds.length === 0) {
+                const noWatchees = document.createElement('li');
+                noWatchees.classList.add('list-group-item');
+                noWatchees.textContent = "No users watching";
+                watchedBy.appendChild(noWatchees);
+            } else {
+                res.watcheeUserIds.forEach((watcheeId, index) => {
+                    API.getUser(state.user.userToken, watcheeId).then(res => {
+                        if (res.ok) return res.json();
+                        else {
+                            if (res.status === 403) {
+                                showError('profile-error', "Invalid Token");
+                            }
+                        }
+                    }).then(watchee => {
+                        const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
+                        newWatchee.setAttribute('key', index);
+                        watchedBy.appendChild(newWatchee);
+                    })
+                });
+            }
+        }
+    })
+}
+
+
+
+
 
 
 //* Event Listeners

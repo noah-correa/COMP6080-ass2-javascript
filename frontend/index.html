@@ -69,37 +69,7 @@
                         <span class="page-number">Page 1</span>
                         <button class="page-next btn btn-outline-primary">></button>
                     </div>
-                    <ul class="job-list list-group" id="job-list">
-                        <li class="hidden" id="job-item-template">
-                            <div class="job-card-template card">
-                                <div class="card-body">
-                                    <h1 class="job-name"></h1>
-                                    <div class="job-posted-info">
-                                        <h4 class="job-creator"></h4>
-                                        <h4 class="job-posted-date"></h4>
-                                    </div>
-                                    <hr/>
-                                    <div class="job-start-date"></div>
-                                    <div class="job-img-description">
-                                        <img class="job-img"/>
-                                        <div class="job-description"></div>
-                                    </div>
-                                    <hr/>
-                                    <div class="job-interactions-popup" data-popup="none">
-                                        <ul class="job-likes-popup list-group hidden"></ul>
-                                        <ul class="job-comments-popup list-group hidden"></ul>
-                                    </div>
-                                    <div class="job-interactions">
-                                        <div class="job-likes-container">
-                                            <button class="job-heart"><i class="material-icons"></i></button>
-                                            <button class="job-likes btn btn-link" type="button"></button>
-                                        </div>
-                                        <button class="job-comments btn btn-link" type="button"></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                    <ul class="job-list list-group" id="job-list"></ul>
                 </div>
                 <!-- Dashboard Error -->
                 <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="dashboard-error">
@@ -107,6 +77,82 @@
                     <button class="error-close btn-close" id="dashboard-error-close" type="button"></button>
                 </div>
             </div>
+
+            <!--* Profile Screen -->
+            <div id="profile-screen" class="profile-container card-body hidden">
+                <!-- Job List -->
+                <div class="profile-container flex-col-center" id="profile-container">
+                    <div class="profile-name-email-img">
+                        <div class="profile-name-email">
+                            <div class="profile-name"><h1></h1></div>
+                            <div class="profile-email"><h4></h4></div>
+                        </div>
+                        <img class="profile-img" alt="No Image Uploaded">
+                    </div>
+                    <hr>
+                    <h4>Jobs Created</h4>
+                    <ul class="profile-jobs-list list-group"></ul>
+                    <hr>
+                    <h4>Users Watching</h4>
+                    <ul class="profile-watcher-list list-group"></ul>
+                </div>
+                <!-- Profile Error -->
+                <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="profile-error">
+                    <span class="profile-error-message"></span>
+                    <button class="error-close btn-close" id="profile-error-close" type="button"></button>
+                </div>
+            </div>
+        </div>
+
+        <!--* Templates -->
+        <div class="templates hidden" id="templates">
+            <!-- Job Feed Item Template -->
+            <li class="list-group-item job-item" id="job-item-template">
+                <h2 class="job-name"></h2>
+                <div class="job-posted-info">
+                    <button class="job-creator btn btn-link" type="button"><h4></h4></button>
+                    <h4 class="job-posted-date"></h4>
+                </div>
+                <hr>
+                <div class="job-start-date"></div>
+                <div class="job-img-description">
+                    <img class="job-img"/>
+                    <div class="job-description"></div>
+                </div>
+                <hr>
+                <div class="job-interactions-popup" data-popup="none">
+                    <ul class="job-likes-popup list-group hidden"></ul>
+                    <ul class="job-comments-popup list-group hidden"></ul>
+                </div>
+                <div class="job-interactions">
+                    <div class="job-likes-container">
+                        <button class="job-heart"><i class="material-icons"></i></button>
+                        <button class="job-likes btn btn-link" type="button"></button>
+                    </div>
+                    <button class="job-comments btn btn-link" type="button"></button>
+                </div>
+            </li>
+
+            <!-- Profile Job Item Template -->
+            <li class="list-group-item profile-job-item" id="profile-job-item-template">
+                <h2 class="job-name"></h2>
+                <div class="job-posted-info">
+                    <button class="job-creator btn btn-link" type="button"><h4></h4></button>
+                    <h4 class="job-posted-date"></h4>
+                </div>
+                <hr>
+                <div class="job-start-date"></div>
+                <div class="job-img-description">
+                    <img class="job-img"/>
+                    <div class="job-description"></div>
+                </div>
+            </li>
+
+            <!-- Profile Watchee Item Template -->
+            <li class="list-group-item profile-watchee-item" id="profile-watchee-item-template">
+                <button class="profile-watchee btn btn-link" type="button"></button>
+            </li>
+
         </div>
     </main>
     <footer class="text-center">
