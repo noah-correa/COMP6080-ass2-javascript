@@ -11,6 +11,24 @@ html, body {
     display: none;
 }
 
+.vis-hidden {
+    visibility: hidden;
+}
+
+.nav-bar {
+    height: 150px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-bar-links {
+    display: flex;
+    align-items: flex-start;
+}
+
+#nav-user-container {
+    width: 100px;
+}
 
 .flex-col-center {
     display: flex;
@@ -23,6 +41,7 @@ html, body {
     flex-direction: column;
     align-items: center;
 }
+
 
 /* .job-list {
     list-style: none;
@@ -111,10 +130,6 @@ ul {
     justify-content: space-between;
 }
 
-.profile-name-email-img > .profile-name {
-
-}
-
 .profile-name-email-img > .profile-img {
     width: 100px;
     height: 100px;
@@ -123,4 +138,8 @@ ul {
 
 .profile-container hr {
     width: 100%;
+}
+
+.profile-email {
+    font-style: italic;
 }

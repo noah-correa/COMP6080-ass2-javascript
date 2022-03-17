@@ -13,11 +13,16 @@
 <body>
     <!-- This is an example app structure, you can modify this as much as you choose --> 
     <header>
-        <div id="navbar" class="navbar justify-content-start">
-            <h1 class="navbar">lurkforwork.com</h1>
-            <a class="nav-link" id="nav-login" href="#">Login</a>
-            <a class="nav-link" id="nav-register" href="#">Register</a>
-            <a class="nav-link" id="nav-dashboard" href="#">Dashboard</a>
+        <div id="navbar" class="navbar nav-bar">
+            <div class="nav-bar-links">
+                <h1 class="">lurkforwork.com</h1>
+                <a class="nav-link" id="nav-login" href="#">Login</a>
+                <a class="nav-link" id="nav-register" href="#">Register</a>
+                <a class="nav-link hidden" id="nav-dashboard" href="#">Dashboard</a>
+            </div>
+            <div class="vis-hidden" id="nav-user-container">
+                <span>Logged in as: </span><button type="button" class="btn btn-link" id="nav-user"></button>
+            </div>
         </div>
     </header>
     <main role="main" class="align-items-center">

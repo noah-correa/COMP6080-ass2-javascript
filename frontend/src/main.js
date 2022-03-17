@@ -1,12 +1,9 @@
-import { BACKEND_PORT } from './config.js';
-// A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
 import API from './api.js';
-import apiMethods from './api.js';
 
 
 
-//* User Object
+//* State Object
 const state = {
     user: {
         isLoggedIn: false,
@@ -64,19 +61,6 @@ const showError = (id, message) => {
     }
 }
 // #endregion
-
-
-//* User Function
-const findUser = (userId) => {
-    return API.getUser(state.user.userToken, userId).then(res => {
-        if (res.ok) return res.json();
-        else {
-            if (res.status === 403) {
-                showError('dashboard-screen', 'Invalid token');
-            }
-        }
-    })
-}
 
 
 //* Navbar Functions
@@ -200,8 +184,6 @@ const constructJobItem = (user, job) => {
     const jobTemplate = document.getElementById('job-item-template').cloneNode(true);
     jobTemplate.removeAttribute('id');
     jobTemplate.setAttribute('id', `job-${job.id}`);
-    // jobTemplate.classList.add('job-item');
-    // jobTemplate.classList.remove('hidden');
 
     const [title, postedInfo, hr, startDate, imgDesc, hr2, popups, interactions] = jobTemplate.children;
     // Title
@@ -333,7 +315,6 @@ const constructJobItem = (user, job) => {
 
 const constructJobFeed = (feed, page) => {
     API.getJobFeed(state.user.userToken, page).then(res => {
-        // console.log(res);
         if (res.ok) return res.json();
         else {
             if (res.status === 403) {
@@ -351,7 +332,6 @@ const constructJobFeed = (feed, page) => {
             // Clear Job List
             clearList(feed);
             res.forEach((job, index) => {
-                // console.log(job);
                 API.getUser(state.user.userToken, job.creatorId).then(res => {
                     if (res.ok) return res.json();
                     else {
@@ -378,6 +358,32 @@ const constructJobFeed = (feed, page) => {
 // #region
 const loadDashboard = () => {
     if (state.user.isLoggedIn) {
+        // Change Navbar links
+        document.getElementById('nav-login').classList.add('hidden');
+        document.getElementById('nav-register').classList.add('hidden');
+        document.getElementById('nav-dashboard').classList.remove('hidden');
+
+        API.getUser(state.user.userToken, state.user.userId).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 403) {
+                    showError('dashboard-screen', 'Invalid token');
+                }
+            }
+        }).then(res => {
+            if (res) {
+                document.getElementById('nav-user-container').classList.remove('vis-hidden');
+                document.getElementById('nav-user').textContent = res.name;
+                if (document.getElementById('nav-user').getAttribute('listener') !== 'true') {
+                    document.getElementById('nav-user').addEventListener('click', (event) => {
+                        event.preventDefault();
+                        document.getElementById('nav-user').setAttribute('listener', 'true')
+                        changeScreen('profile-screen', loadProfileScreen, [res.id]);
+                    });
+               }
+            }
+        })
+
         const feedList = document.getElementById('job-list');
         const [pageBack, pageNum, pageNext] = document.getElementById('job-page').children;
 
@@ -408,14 +414,12 @@ const loadDashboard = () => {
 // #endregion
 
 
-
 //* Profile Screen
+// #region
 const constructProfileJob = (job, name) => {
     const profileJobTemplate = document.getElementById('profile-job-item-template').cloneNode(true);
     profileJobTemplate.removeAttribute('id');
     profileJobTemplate.setAttribute('id', `job-${job.id}`);
-    // profileJobTemplate.classList.add('job-item');
-    // profileJobTemplate.classList.remove('hidden');
 
     const [title, postedInfo, hr, startDate, imgDesc] = profileJobTemplate.children;
     // Title
@@ -438,13 +442,11 @@ const constructProfileWatchee = (id, name) => {
     watcheeTemplate.removeAttribute('id');
     watcheeTemplate.setAttribute('id', `profile-${id}`);
     const profileButton = watcheeTemplate.children[0];
-    // console.log(watcheeTemplate.children[0]);
     profileButton.textContent = name;
     profileButton.addEventListener('click', (event) => {
         event.preventDefault();
         changeScreen('profile-screen', loadProfileScreen, [id]);
     });
-    // console.log(watcheeTemplate);
 
     return watcheeTemplate;
 }
@@ -459,8 +461,6 @@ const loadProfileScreen = (id) => {
         }
     }).then(res => {
         if (res) {
-            // console.log(res);
-            // console.log(document.getElementById('profile-container').children);
             const [nameEmailImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
             const [nameEmail, img] = nameEmailImg.children;
             nameEmail.children[0].firstChild.textContent = res.name;
@@ -469,23 +469,18 @@ const loadProfileScreen = (id) => {
             
             // Jobs List
             clearList(jobs);
-            if (res.watcheeUserIds.length === 0) {
+            if (res.jobs.length === 0) {
                 const noJobs = document.createElement('li');
                 noJobs.classList.add('list-group-item');
                 noJobs.textContent = "No jobs created";
                 jobs.appendChild(noJobs);
             } else {
                 res.jobs.forEach((job, index) => {
-                    // const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
-                    // newWatchee.setAttribute('key', index);
-                    // jobs.appendChild(newWatchee);
                     const newJob = constructProfileJob(job, res.name);
                     newJob.setAttribute('key', index);
                     jobs.appendChild(newJob);
                 });
             }
-
-
 
             // Watchee List
             clearList(watchedBy);
@@ -496,24 +491,26 @@ const loadProfileScreen = (id) => {
                 watchedBy.appendChild(noWatchees);
             } else {
                 res.watcheeUserIds.forEach((watcheeId, index) => {
-                    API.getUser(state.user.userToken, watcheeId).then(res => {
-                        if (res.ok) return res.json();
+                    API.getUser(state.user.userToken, watcheeId).then(userRes => {
+                        if (userRes.ok) return userRes.json();
                         else {
-                            if (res.status === 403) {
+                            if (userRes.status === 403) {
                                 showError('profile-error', "Invalid Token");
                             }
                         }
                     }).then(watchee => {
-                        const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
-                        newWatchee.setAttribute('key', index);
-                        watchedBy.appendChild(newWatchee);
+                        if (watchee) {
+                            const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
+                            newWatchee.setAttribute('key', index);
+                            watchedBy.appendChild(newWatchee);
+                        }
                     })
                 });
             }
         }
     })
 }
-
+// #endregion
 
 
 
