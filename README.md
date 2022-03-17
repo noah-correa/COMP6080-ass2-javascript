@@ -119,7 +119,7 @@ Milestone 4 focuses predominately on user profiles and how users interact with t
 * Let a user click on a user's name from a job, like, or comment, and be taken to a profile screen for that user.
 * The profile screen should contain any information the backend provides for that particular user ID via (`GET /user`).
 * The profile should also display all jobs made by that person. You are not required to show likes and/or comments for each job here.
-* The profile should also display somewhere all other users this profile is watched by (information via `GET /user`). This should consist of a list of names (which for each name links to another profile), as well as a count somewhere on the page that shows the total number of users they watch.
+* The profile should also display somewhere all other users this profile is watched by (information via `GET /user`). This should consist of a list of names (which for each name links to another profile), as well as a count somewhere on the page that shows the total number of users they are watched by.
 
 #### 2.4.2. Viewing your own profile
 * Users can view their own profile as if they would any other user's profile
