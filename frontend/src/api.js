@@ -36,7 +36,12 @@ const apiMethods = {
             email: email,
             password: password
         };
-        return fetch(`${baseURL}/auth/login`, buildRequest('POST', undefined, data));
+        return fetch(`${baseURL}/auth/login`, buildRequest('POST', undefined, data)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 400) return { error: 'Invalid input' };
+            }
+        });
     },
 
     register: (email, password, name) => {
@@ -45,15 +50,31 @@ const apiMethods = {
             password: password,
             name: name
         };
-        return fetch(`${baseURL}/auth/register`, buildRequest('POST', undefined, data));
+        return fetch(`${baseURL}/auth/register`, buildRequest('POST', undefined, data)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 400) return { error: 'Invalid input' };
+            }
+        });
     },
 
     getJobFeed: (token, page=0) => {
-        return fetch(`${baseURL}/job/feed?start=${page}`, buildRequest('GET', token));
+        return fetch(`${baseURL}/job/feed?start=${page}`, buildRequest('GET', token)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 403) return { error: 'Invalid token' };
+            }
+        });
     },
 
     getUser: (token, userId) => {
-        return fetch(`${baseURL}/user?userId=${userId}`, buildRequest('GET', token));
+        // console.log(res);
+        return fetch(`${baseURL}/user?userId=${userId}`, buildRequest('GET', token)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 403) return { error: 'Invalid token' };
+            }
+        });
     },
 
     likeJob: (token, id, like) => {
@@ -61,8 +82,24 @@ const apiMethods = {
             id: id,
             turnon: like
         };
-        return fetch(`${baseURL}/job/like`, buildRequest('PUT', token, data));
-    }
+        return fetch(`${baseURL}/job/like`, buildRequest('PUT', token, data)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 400) return { error: 'Invalid input' };
+                else if (res.status === 403) return { error: 'Invalid token' };
+            }
+        });
+    },
+
+    updateProfile: (token, data) => {
+        return fetch(`${baseURL}/user`, buildRequest('PUT', token, data)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 400) return { error: "Invalid input" };
+                else if (res.status === 403) return { error: "Invalid token" };
+            }
+        })
+    },
 
 }
 

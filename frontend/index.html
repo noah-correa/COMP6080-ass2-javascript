@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
-    <!-- This is an example app structure, you can modify this as much as you choose --> 
     <header>
         <div id="navbar" class="navbar nav-bar">
             <div class="nav-bar-links">
@@ -91,6 +90,7 @@
                         <div class="profile-name-email">
                             <div class="profile-name"><h1></h1></div>
                             <div class="profile-email"><h4></h4></div>
+                            <button class="profile-update btn btn-primary vis-hidden">Update Profile</button>
                         </div>
                         <img class="profile-img" alt="No Image Uploaded">
                     </div>
@@ -105,6 +105,44 @@
                 <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="profile-error">
                     <span class="profile-error-message"></span>
                     <button class="error-close btn-close" id="profile-error-close" type="button"></button>
+                </div>
+            </div>
+
+            <!--* Profile Update Screen -->
+            <div id="update-profile-screen" class="update-profile-container card-body hidden">
+                <!-- Update Form -->
+                <div class="update-profile-container flex-col-center" id="update-profile-container">
+                    <form id="update-profile-form">
+                        <div class="mb-3 flex-col-center">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="">
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="password" value="">
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="cpassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="cpassword" value="">
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" value="">
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="image" class="form-label">Profile Picture</label>
+                            <img id="update-profile-image" class="profile-img" alt="No Image Uploaded">
+                            <input type="file" class="form-control" id="image">
+                        </div>
+                        <div class="flex-col-center">
+                            <button type="submit" class="btn btn-primary mb-3" id="update-profile-button">Update</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Update Profile Error -->
+                <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="update-profile-error">
+                    <span class="update-profile-error-message"></span>
+                    <button class="error-close btn-close" id="update-profile-error-close" type="button"></button>
                 </div>
             </div>
         </div>
@@ -142,7 +180,7 @@
             <li class="list-group-item profile-job-item" id="profile-job-item-template">
                 <h2 class="job-name"></h2>
                 <div class="job-posted-info">
-                    <button class="job-creator btn btn-link" type="button"><h4></h4></button>
+                    <h4></h4>
                     <h4 class="job-posted-date"></h4>
                 </div>
                 <hr>

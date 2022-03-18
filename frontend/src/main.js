@@ -30,14 +30,14 @@ const showScreen = (id) => {
 }
 
 const changeScreen = (id, cb=undefined, args=undefined) => {
-    try {
-        hideScreen(state.currentScreen);
-        showScreen(id);
-        if (args) cb(...args);
-        else if (cb) cb();
-    } catch {
-        console.log("Error: Cannot change screens")
-    }
+    // try {
+    if (args) cb(...args);
+    else if (cb) cb();
+    hideScreen(state.currentScreen);
+    showScreen(id);
+    // } catch {
+        // console.log("Error: Cannot change screens")
+    // }
 }
 // #endregion
 
@@ -98,19 +98,13 @@ const handleLogin = (event) => {
     event.preventDefault();
     const { email, password } = document.forms.login;
     API.login(email.value, password.value).then(res => {
-        if (res.ok) return res.json();
-        else {
-            if (res.status === 400) {
-                showError('login-error', 'Invalid input');
-            }
-        }
-    }).then(res => {
-        if (res) {
+        if (res.error) {
+            showError('login-error', res.error);
+        } else {
             hideError('login-error');
             state.user.userToken = res.token;
             state.user.userId = res.userId;
             state.user.isLoggedIn = true;
-            console.log("User logged in successfully");
             changeScreen('dashboard-screen', loadDashboard);
             document.title = "LurkForWork - Dashboard";
         }
@@ -132,14 +126,9 @@ const handleRegister = (event) => {
     }
 
     API.register(email.value, password.value, name.value).then(res => {
-        if (res.ok) return res.json();
-        else {
-            if (res.status === 400) {
-                showError('register-error', 'Invalid input');
-            }
-        }
-    }).then(res => {
-        if (res) {
+        if (res.error) {
+            showError('register-error', res.error);
+        } else {
             hideError('register-error');
             state.user.userToken = res.token;
             state.user.userId = res.userId;
@@ -168,6 +157,7 @@ const getJobDate = (timeCreated) => {
     const hoursSinceCreated = Math.floor((now - posted.getTime()) / 1000 / 60 / 60);
     if (hoursSinceCreated < 24) {
         const minsSinceCreated = Math.round((now - posted.getTime()) % 86400000 % 3600000 / 60000);
+        if (hoursSinceCreated === 0) return `${minsSinceCreated} min${minsSinceCreated === 1 ? "" : "s"} ago`
         return `${hoursSinceCreated} hr${hoursSinceCreated === 1 ? "" : "s"} ${minsSinceCreated} min${minsSinceCreated === 1 ? "" : "s"} ago`
     } else {
         return formatDate(posted);
@@ -217,31 +207,17 @@ const constructJobItem = (user, job) => {
     let userLiked = job.likes.find((like) => {
         return like.userId === state.user.userId;
     });
-    if (userLiked) {
-        icon.textContent = 'favorite';
-    } else {
-        icon.textContent = 'favorite_border';
-    }
+    icon.textContent = userLiked ? 'favorite' : 'favorite_border';
 
     // Heart Button Click listener
     heartButton.addEventListener('click', (event) => {
         event.preventDefault();
         API.likeJob(state.user.userToken, job.id, !userLiked).then(res => {
-            if (res.ok) return res.json();
-            else {
-                if (res.status === 400) {
-                    showError('dashboard-error', 'Invalid input');
-                } else if (res.status === 403) {
-                    showError('dashboard-error', 'Invalid token');
-                }
-            }
-        }).then(res => {
-            if (res) {
-                if (userLiked) {
-                    icon.textContent = 'favorite_border';
-                } else {
-                    icon.textContent = 'favorite';
-                }
+            if (res.error) {
+                showError('dashboard-error', res.error);
+            } else {
+                hideError('dashboard-error');
+                icon.textContent = userLiked ? 'favorite_border' : 'favorite';
                 userLiked = !userLiked;
             }
         });
@@ -315,32 +291,27 @@ const constructJobItem = (user, job) => {
 
 const constructJobFeed = (feed, page) => {
     API.getJobFeed(state.user.userToken, page).then(res => {
-        if (res.ok) return res.json();
-        else {
-            if (res.status === 403) {
-                showError('dashboard-error', 'Invalid token');
-                return false;
-            }
-        }
-    }).then(res => {
-        if (res.length === 0) { 
+        if (res.error) {
+            showError('dashboard-error', res.error);
+        } else if (res.length === 0) { 
+            hideError('dashboard-error');
             // Clear Job List
             clearList(feed);
+            const noJobs = document.createElement('li');
+            noJobs.classList.add('list-group-item');
+            noJobs.textContent = "No jobs watched";
+            feed.appendChild(noJobs);
             return false;
-        }
-        if (res) {
+        } else {
+            hideError('dashboard-error');
             // Clear Job List
             clearList(feed);
             res.forEach((job, index) => {
-                API.getUser(state.user.userToken, job.creatorId).then(res => {
-                    if (res.ok) return res.json();
-                    else {
-                        if (res.status === 403) {
-                            showError('dashboard-screen', 'Invalid token');
-                        }
-                    }
-                }).then(userJson => {
-                    if (userJson) {
+                API.getUser(state.user.userToken, job.creatorId).then(userJson => {
+                    if (userJson.error) {
+                        showError('dashboard-error', userJson.error);
+                    } else {
+                        hideError('dashboard-error');
                         const newJob = constructJobItem(userJson, job);
                         newJob.setAttribute('key', index);
                         feed.appendChild(newJob);
@@ -364,14 +335,10 @@ const loadDashboard = () => {
         document.getElementById('nav-dashboard').classList.remove('hidden');
 
         API.getUser(state.user.userToken, state.user.userId).then(res => {
-            if (res.ok) return res.json();
-            else {
-                if (res.status === 403) {
-                    showError('dashboard-screen', 'Invalid token');
-                }
-            }
-        }).then(res => {
-            if (res) {
+            if (res.error) {
+                showError('dashboard-error', res.error);
+            } else {
+                hideError('dashboard-error');
                 document.getElementById('nav-user-container').classList.remove('vis-hidden');
                 document.getElementById('nav-user').textContent = res.name;
                 if (document.getElementById('nav-user').getAttribute('listener') !== 'true') {
@@ -425,7 +392,7 @@ const constructProfileJob = (job, name) => {
     // Title
     title.textContent = `${job.title}`;
     // Posted Info
-    postedInfo.children[0].children[0].textContent = `${name}`;
+    postedInfo.children[0].textContent = `${name}`;
     postedInfo.children[0].setAttribute('id', `profile-${job.creatorId}`);
     postedInfo.children[1].textContent = `Posted: ${getJobDate(job.createdAt)}`;
     // Start Date
@@ -453,19 +420,25 @@ const constructProfileWatchee = (id, name) => {
 
 const loadProfileScreen = (id) => {
     API.getUser(state.user.userToken, id).then(res => {
-        if (res.ok) return res.json();
-        else {
-            if (res.status === 403) {
-                showError('profile-error', "Invalid Token");
+        if (res.error) {
+            showError('profile-error', res.error);
+        } else {
+            hideError('profile-error');
+            const [nameEmailUpdateImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
+            const [nameEmailUpdate, img] = nameEmailUpdateImg.children;
+            const [name, email, update] = nameEmailUpdate.children;
+            if (id === state.user.userId) {
+                update.classList.remove('vis-hidden');
+                update.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    changeScreen('update-profile-screen', loadProfileUpdateScreen, [res]);
+                })
+            } else {
+                update.classList.add('vis-hidden');
             }
-        }
-    }).then(res => {
-        if (res) {
-            const [nameEmailImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
-            const [nameEmail, img] = nameEmailImg.children;
-            nameEmail.children[0].firstChild.textContent = res.name;
-            nameEmail.children[1].firstChild.textContent = res.email;
-            if (res.image) img.children[1].setAttribute('src', res.image);
+            name.children[0].textContent = res.name;
+            email.children[0].textContent = res.email;
+            if (res.image) img.setAttribute('src', res.image);
             
             // Jobs List
             clearList(jobs);
@@ -491,15 +464,11 @@ const loadProfileScreen = (id) => {
                 watchedBy.appendChild(noWatchees);
             } else {
                 res.watcheeUserIds.forEach((watcheeId, index) => {
-                    API.getUser(state.user.userToken, watcheeId).then(userRes => {
-                        if (userRes.ok) return userRes.json();
-                        else {
-                            if (userRes.status === 403) {
-                                showError('profile-error', "Invalid Token");
-                            }
-                        }
-                    }).then(watchee => {
-                        if (watchee) {
+                    API.getUser(state.user.userToken, watcheeId).then(watchee => {
+                        if (watchee.error) {
+                            showError('profile-error', watchee.error);
+                        } else {
+                            hideError('profile-error');
                             const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
                             newWatchee.setAttribute('key', index);
                             watchedBy.appendChild(newWatchee);
@@ -513,6 +482,58 @@ const loadProfileScreen = (id) => {
 // #endregion
 
 
+//* Profile Update Screen
+// #region
+const handleUpdateProfile = (event) => {
+    event.preventDefault();
+    hideError('update-profile-error');
+    const id = document.getElementById('update-profile-button').getAttribute('data-id');
+    const { email, password, cpassword, name, image } = document.forms['update-profile-form'];
+    const data = {};
+    if (email.value) data.email = email.value;
+    if (password.value && password.value === cpassword.value) data.password = password.value;
+    if (password.value && password.value !== cpassword.value) {
+        showError('update-profile-error', "Passwords do not match");
+        return;
+    }
+    if (name.value) data.name = name.value;
+    if (image.files[0]) {
+        try {
+            fileToDataUrl(image.files[0]).then(res => {
+                data.image = res;                
+                API.updateProfile(state.user.userToken, data).then(res => {
+                    if (res.error) showError('update-profile-error', res.error);
+                    else {
+                        if (data.name) document.getElementById('nav-user').textContent = data.name;
+                        changeScreen('profile-screen', loadProfileScreen, [id]);
+                    }
+                });
+            })
+        } catch {
+            showError('update-profile-error', "Invalid image chosen");
+        }
+    } else {
+        // console.log(data);
+        API.updateProfile(state.user.userToken, data).then(res => {
+            if (res.error) showError('update-profile-error', res.error);
+            else {
+                if (data.name) document.getElementById('nav-user').textContent = data.name;
+                changeScreen('profile-screen', loadProfileScreen, [id]);
+            }
+        });
+
+    }
+
+}
+
+const loadProfileUpdateScreen = (prevUser) => {
+    const { email, name } = document.forms['update-profile-form'];
+    email.setAttribute('placeholder', prevUser.email);
+    name.setAttribute('placeholder', prevUser.name);
+    document.getElementById('update-profile-button').setAttribute('data-id', prevUser.id);
+    if (prevUser.image) document.getElementById('update-profile-image').setAttribute('src', prevUser.image);
+}
+// #endregion
 
 
 
@@ -522,3 +543,4 @@ document.getElementById('nav-register').addEventListener('click', handleNavRegis
 document.getElementById('nav-dashboard').addEventListener('click', handleNavDashboard);
 document.getElementById('login').addEventListener('submit', handleLogin);
 document.getElementById('register').addEventListener('submit', handleRegister);
+document.getElementById('update-profile-button').addEventListener('click', handleUpdateProfile);

@@ -6,6 +6,13 @@ html, body {
     font-family: Arial;
 }
 
+footer {
+    /* position: absolute; */
+    /* bottom: 0px; */
+    /* border: 1px solid red; */
+    /* margin-right: auto; */
+    /* margin-left: auto; */
+}
 
 .hidden {
     display: none;
@@ -42,7 +49,9 @@ html, body {
     align-items: center;
 }
 
-
+.dashboard-container {
+    width: 90%;
+}
 /* .job-list {
     list-style: none;
 } */
@@ -130,9 +139,9 @@ ul {
     justify-content: space-between;
 }
 
-.profile-name-email-img > .profile-img {
-    width: 100px;
-    height: 100px;
+.profile-img {
+    width: 150px;
+    height: 150px;
     border: 1px solid grey;
 }
 
@@ -142,4 +151,9 @@ ul {
 
 .profile-email {
     font-style: italic;
+}
+
+#update-profile {
+    margin-right: auto;
+    margin-left: auto;
 }
