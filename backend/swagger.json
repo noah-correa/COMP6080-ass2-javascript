@@ -8,7 +8,7 @@
   "tags": [
     {
       "name": "Auth",
-      "description": "Managing user authentication and authorisation"
+      "description": "Managing user authentication and authorization"
     },
     {
       "name": "Jobs",
@@ -30,7 +30,7 @@
     "schemas": {
       "Token": {
         "type": "string",
-        "description": "Token to provide authorisation",
+        "description": "Token to provide authorization",
         "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhheWRlbkB1bnN3LmVkdS5hdSIsImlhdCI6MTYwMzk0MzIzMH0.b37PfwlcH_cue6yhgvDt2IiNvhRACf79hTNtacYB94Q"
       },
       "Start": {
@@ -289,7 +289,7 @@
       },
       "UserIdParam": {
         "name": "userId",
-        "in": "params",
+        "in": "query",
         "description": "User ID",
         "required": true,
         "schema": {
@@ -298,7 +298,7 @@
       },
       "PaginationStart": {
         "name": "start",
-        "in": "params",
+        "in": "query",
         "description": "Start Index",
         "required": true,
         "schema": {
@@ -469,9 +469,6 @@
         "description": "Returns details of all job posts from users's that the logged in user watches",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Authorization"
-          },
-          {
             "$ref": "#/components/parameters/PaginationStart"
           }
         ],
@@ -504,11 +501,6 @@
         ],
         "summary": "Create a new job posting",
         "description": "Create a new job posting with the given details",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -555,11 +547,6 @@
         ],
         "summary": "Update a job listing",
         "description": "Update fields on a existing job listing",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -592,11 +579,6 @@
         ],
         "summary": "Delete a job posting",
         "description": "Delete a job posting given a particular job ID",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -637,11 +619,6 @@
         ],
         "summary": "Comments on a job post",
         "description": "Allow the current user to leave a text comment on a job post from a user they are watching.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -685,11 +662,6 @@
         ],
         "summary": "Like or unlike a job post",
         "description": "Allow the current user to like or unlike a job post from a user they are watching. If 'on' is set to true then the action 'likes' a post. If 'on' is set to false, then the action unlikes a post",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -735,9 +707,6 @@
         "description": "Returns basic details of a specific user",
         "parameters": [
           {
-            "$ref": "#/components/parameters/Authorization"
-          },
-          {
             "$ref": "#/components/parameters/UserIdParam"
           }
         ],
@@ -768,11 +737,6 @@
         ],
         "summary": "Update user's own profile",
         "description": "Updates the users' email, password, name, and/or image with the given details. It will only update defined fields provided. Any fields given that are undefined will remain unchanged.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -821,11 +785,6 @@
         ],
         "summary": "Watching or unwatching another user",
         "description": "Specify whether this user should be watching or unwatching another user",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
