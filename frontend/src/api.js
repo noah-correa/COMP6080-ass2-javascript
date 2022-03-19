@@ -98,7 +98,21 @@ const apiMethods = {
                 if (res.status === 400) return { error: "Invalid input" };
                 else if (res.status === 403) return { error: "Invalid token" };
             }
-        })
+        });
+    },
+
+    watchUser: (token, email, watch) => {
+        const data = {
+            email: email,
+            turnon: watch
+        };
+        return fetch(`${baseURL}/user/watch`, buildRequest('PUT', token, data)).then(res => {
+            if (res.ok) return res.json();
+            else {
+                if (res.status === 400) return { error: "Invalid input" };
+                else if (res.status === 403) return { error: "Invalid token" };
+            }
+        });
     },
 
 }

@@ -170,6 +170,31 @@ const clearList = (parent) => {
     });
 }
 
+const handleProfileButton = (event) => {
+    event.preventDefault();
+    event.currentTarget.removeEventListener('click', handleProfileButton);
+    changeScreen('profile-screen', loadProfileScreen, [event.currentTarget.id]);
+}
+
+const handleHeartButton = (event) => {
+    event.preventDefault();
+    const heartButton = event.currentTarget;
+    const { job, userLiked } = heartButton;
+    let liked = userLiked;
+    API.likeJob(state.user.userToken, job.id, !liked).then(res => {
+        if (res.error) {
+            showError('dashboard-error', res.error);
+        } else {
+            hideError('dashboard-error');
+            // console.log(event.currentTarget);
+            heartButton.textContent = liked ? 'favorite_border' : 'favorite';
+            liked = !liked;
+            heartButton.removeEventListener('click', handleHeartButton);
+            changeScreen('dashboard-screen', loadDashboard);
+        }
+    });
+}
+
 const constructJobItem = (user, job) => {
     const jobTemplate = document.getElementById('job-item-template').cloneNode(true);
     jobTemplate.removeAttribute('id');
@@ -194,10 +219,8 @@ const constructJobItem = (user, job) => {
     likesButton.textContent = `${job.likes.length} like${job.likes.length === 1 ? "" : "s"}`
     commentsButton.textContent = `${job.comments.length} comment${job.comments.length === 1 ? "" : "s"}`
     // Poster Profile Button
-    postedInfo.children[0].addEventListener('click', (event) => {
-        event.preventDefault();
-        changeScreen('profile-screen', loadProfileScreen, [user.id]);
-    })
+    postedInfo.children[0].id = user.id;
+    postedInfo.children[0].addEventListener('click', handleProfileButton);
 
     // Likes/Comments Popup
     const [likesPopup, commentsPopup] = popups.children;
@@ -210,18 +233,10 @@ const constructJobItem = (user, job) => {
     icon.textContent = userLiked ? 'favorite' : 'favorite_border';
 
     // Heart Button Click listener
-    heartButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        API.likeJob(state.user.userToken, job.id, !userLiked).then(res => {
-            if (res.error) {
-                showError('dashboard-error', res.error);
-            } else {
-                hideError('dashboard-error');
-                icon.textContent = userLiked ? 'favorite_border' : 'favorite';
-                userLiked = !userLiked;
-            }
-        });
-    })
+    // console.log(heartButton);
+    heartButton.job = job;
+    heartButton.userLiked = userLiked;
+    heartButton.addEventListener('click', handleHeartButton);
 
     // Like Button Click listener
     likesButton.addEventListener('click', (event) => {
@@ -232,11 +247,17 @@ const constructJobItem = (user, job) => {
             likesPopup.classList.remove('hidden');
             job.likes.forEach((like, index) => {
                 // Create a new like list item
-                const newLike = document.createElement('li');
-                newLike.setAttribute('key', index);
-                newLike.classList.add('list-group-item');
+                const newItem = document.createElement('li');
+                const newLike = document.createElement('button');
+
+                newItem.setAttribute('key', index);
+                newItem.classList.add('list-group-item', 'text-center');
+                newLike.classList.add('btn', 'btn-link');
                 newLike.textContent = `${like.userName}`;
-                likesPopup.appendChild(newLike);
+                newLike.id = like.userId;
+                newLike.addEventListener('click', handleProfileButton);
+                newItem.appendChild(newLike);
+                likesPopup.appendChild(newItem);
             })
         } else if (popupsState === 'likes') {
             popups.setAttribute('data-popup', 'none');
@@ -248,14 +269,14 @@ const constructJobItem = (user, job) => {
     })
 
     // Like Button Blur listener
-    likesButton.addEventListener('blur', (event) => {
-        event.preventDefault();
-        popups.setAttribute('data-popup', 'none');
-        clearList(likesPopup);
-        likesPopup.classList.add('hidden');
-    })
+    // likesButton.addEventListener('blur', (event) => {
+    //     event.preventDefault();
+    //     popups.setAttribute('data-popup', 'none');
+    //     clearList(likesPopup);
+    //     likesPopup.classList.add('hidden');
+    // })
 
-    // Comment Button 
+    // Comment Button Click listener
     commentsButton.addEventListener('click', (event) => {
         event.preventDefault();
         const popupsState = popups.getAttribute('data-popup');
@@ -264,11 +285,16 @@ const constructJobItem = (user, job) => {
             commentsPopup.classList.remove('hidden');
             job.comments.forEach((comment, index) => {
                 // Create a new like list item
-                const newComment = document.createElement('li');
-                newComment.setAttribute('key', index);
-                newComment.classList.add('list-group-item');
+                const newItem = document.createElement('li');
+                const newComment = document.createElement('button');
+                newItem.setAttribute('key', index);
+                newItem.classList.add('list-group-item');
+                newComment.classList.add('btn', 'btn-link');
                 newComment.textContent = `${comment.userName}: ${comment.comment}`;
-                commentsPopup.appendChild(newComment);
+                newComment.id = comment.userId;
+                newComment.addEventListener('click', handleProfileButton);
+                newItem.appendChild(newComment);
+                commentsPopup.appendChild(newItem);
             })
         } else if (popupsState === 'comments') {
             popups.setAttribute('data-popup', 'none');
@@ -278,13 +304,13 @@ const constructJobItem = (user, job) => {
         }
     })
 
-    // Comment Button
-    commentsButton.addEventListener('blur', (event) => {
-        event.preventDefault();
-        popups.setAttribute('data-popup', 'none');
-        clearList(commentsPopup);
-        commentsPopup.classList.add('hidden');
-    })
+    // Comment Button Blur listener
+    // commentsButton.addEventListener('blur', (event) => {
+    //     event.preventDefault();
+    //     popups.setAttribute('data-popup', 'none');
+    //     clearList(commentsPopup);
+    //     commentsPopup.classList.add('hidden');
+    // })
 
     return jobTemplate;
 }
@@ -327,13 +353,35 @@ const constructJobFeed = (feed, page) => {
 
 //* Dashboard Screen
 // #region
+const handleEmailSearch = (event) => {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const { email } = document.forms['email-search'];
+    
+    // console.log(email);
+    API.watchUser(state.user.userToken, email.value, true).then(res => {
+        if (res.error) showError('email-search-error', res.error);
+        else {
+            button.removeEventListener('click', handleEmailSearch);
+            changeScreen('dashboard-screen', loadDashboard);
+        }
+    })
+}
+
+const handleNavUserProfile = (event) => {
+    event.preventDefault();
+    event.currentTarget.removeEventListener('click', handleNavUserProfile);
+    changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+}
+
 const loadDashboard = () => {
     if (state.user.isLoggedIn) {
         // Change Navbar links
         document.getElementById('nav-login').classList.add('hidden');
         document.getElementById('nav-register').classList.add('hidden');
         document.getElementById('nav-dashboard').classList.remove('hidden');
-
+        
+        // Set up Navbar Logged in user
         API.getUser(state.user.userToken, state.user.userId).then(res => {
             if (res.error) {
                 showError('dashboard-error', res.error);
@@ -341,16 +389,15 @@ const loadDashboard = () => {
                 hideError('dashboard-error');
                 document.getElementById('nav-user-container').classList.remove('vis-hidden');
                 document.getElementById('nav-user').textContent = res.name;
-                if (document.getElementById('nav-user').getAttribute('listener') !== 'true') {
-                    document.getElementById('nav-user').addEventListener('click', (event) => {
-                        event.preventDefault();
-                        document.getElementById('nav-user').setAttribute('listener', 'true')
-                        changeScreen('profile-screen', loadProfileScreen, [res.id]);
-                    });
-               }
+                document.getElementById('nav-user').addEventListener('click', handleNavUserProfile);
             }
         })
 
+        // Handle Email search
+        const emailSearchButton = document.getElementById('search-email');
+        emailSearchButton.addEventListener('click', handleEmailSearch);
+
+        // Handle Job Feed
         const feedList = document.getElementById('job-list');
         const [pageBack, pageNum, pageNext] = document.getElementById('job-page').children;
 
@@ -359,20 +406,24 @@ const loadDashboard = () => {
         constructJobFeed(feedList, jobsPerPage * (currPage-1));
         
         pageBack.addEventListener('click', (event) => {
+            console.log('page back');
             event.preventDefault();
             if (currPage === 1) return;
             const made = constructJobFeed(feedList, jobsPerPage * (currPage-2));
             if (made) {
                 currPage -= 1;
+                console.log(pageNum);
                 pageNum.textContent = `Page ${currPage}`;
             }
         });
 
         pageNext.addEventListener('click', (event) => {
+            console.log('page next');
             event.preventDefault();
             const made = constructJobFeed(feedList, jobsPerPage * (currPage));
             if (made) {
                 currPage += 1;
+                console.log(pageNum);
                 pageNum.textContent = `Page ${currPage}`;
             }
         });
@@ -383,6 +434,45 @@ const loadDashboard = () => {
 
 //* Profile Screen
 // #region
+const handleUpdateProfileButton = (event) => {
+    event.preventDefault();
+    const update = event.currentTarget;
+    const { res } = event.currentTarget;
+    update.removeEventListener('click', handleUpdateProfileButton);
+    changeScreen('update-profile-screen', loadProfileUpdateScreen, [res]);
+}
+
+const handleWatchButton = (event) => {
+    event.preventDefault();
+    const watch = event.currentTarget;
+    const { res, watching, id } = watch;
+    let isWatching = watching;
+    API.watchUser(state.user.userToken, res.email, !isWatching).then(watchRes => {
+        if (watchRes.error) showError('profile-error', watchRes.error);
+        else {
+            if (isWatching) {
+                watch.textContent = 'Watch User';
+                watch.classList.remove('btn-primary');
+                watch.classList.add('btn-outline-primary');
+            } else {
+                watch.textContent = 'Unwatch User';
+                watch.classList.remove('btn-outline-primary');
+                watch.classList.add('btn-primary');
+            }
+            isWatching = !isWatching;
+            watch.removeEventListener('click', handleWatchButton);
+            changeScreen('profile-screen', loadProfileScreen, [id]);
+        }
+    });
+}
+
+const handleProfileWatcheeButton = (event) => {
+    event.preventDefault();
+    const { id } = event.currentTarget;
+    event.currentTarget.removeEventListener('click', handleProfileWatcheeButton);
+    changeScreen('profile-screen', loadProfileScreen, [id]);
+}
+
 const constructProfileJob = (job, name) => {
     const profileJobTemplate = document.getElementById('profile-job-item-template').cloneNode(true);
     profileJobTemplate.removeAttribute('id');
@@ -410,31 +500,54 @@ const constructProfileWatchee = (id, name) => {
     watcheeTemplate.setAttribute('id', `profile-${id}`);
     const profileButton = watcheeTemplate.children[0];
     profileButton.textContent = name;
-    profileButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        changeScreen('profile-screen', loadProfileScreen, [id]);
-    });
-
+    profileButton.id = id;
+    profileButton.addEventListener('click', handleProfileWatcheeButton);
     return watcheeTemplate;
 }
 
-const loadProfileScreen = (id) => {
+const loadProfileScreen = (userId) => {
+    const id = Number.parseInt(userId, 10);
+    // Profile User JSON
     API.getUser(state.user.userToken, id).then(res => {
-        if (res.error) {
-            showError('profile-error', res.error);
-        } else {
+        // console.log(res);
+        if (res.error) showError('profile-error', res.error);
+        else {
             hideError('profile-error');
             const [nameEmailUpdateImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
             const [nameEmailUpdate, img] = nameEmailUpdateImg.children;
-            const [name, email, update] = nameEmailUpdate.children;
+            const [name, email, buttons] = nameEmailUpdate.children;
+            const [update, watch] = buttons.children;
+
+            // Check if profile is logged in user's profile
             if (id === state.user.userId) {
-                update.classList.remove('vis-hidden');
-                update.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    changeScreen('update-profile-screen', loadProfileUpdateScreen, [res]);
-                })
+                // If logged in user's profile, display update button
+                watch.classList.add('hidden');
+                update.classList.remove('hidden');
+                // Watching button event listener
+                update.res = res;
+                update.addEventListener('click', handleUpdateProfileButton);
             } else {
-                update.classList.add('vis-hidden');
+                // Otherwise, display watch/unwatch button
+                update.classList.add('hidden');
+                watch.classList.remove('hidden');
+
+                let watching = res.watcheeUserIds.find((watcheeId) => {
+                    return watcheeId === state.user.userId;
+                })
+                if (watching) {
+                    watch.textContent = 'Unwatch User';
+                    watch.classList.remove('btn-outline-primary');
+                    watch.classList.add('btn-primary');
+                } else {
+                    watch.textContent = 'Watch User';
+                    watch.classList.remove('btn-primary');
+                    watch.classList.add('btn-outline-primary');
+                }
+                // Watching button event listener
+                watch.res = res;
+                watch.watching = watching;
+                watch.id = id;
+                watch.addEventListener('click', handleWatchButton);
             }
             name.children[0].textContent = res.name;
             email.children[0].textContent = res.email;

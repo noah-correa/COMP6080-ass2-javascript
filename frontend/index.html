@@ -66,6 +66,22 @@
 
             <!--* Dashboard Screen *-->
             <div id="dashboard-screen" class="dashboard-container card-body hidden">
+                <!-- Email Search -->
+                <div class="email-search-container">
+                    <form id="email-search" name="email-search" class="flex-col-center">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Find user to watch</span>
+                            <input type="email" class="form-control" placeholder="Email" name="email">
+                            <button class="btn btn-outline-primary" type="button" id="search-email">Watch</button>
+                        </div>
+                    </form>
+                    <!-- Email Search Error -->
+                    <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="email-search-error">
+                        <span class="email-search-error-message"></span>
+                        <button class="error-close btn-close" id="email-search-error-close" type="button"></button>
+                    </div>
+                </div>
+                <hr>
                 <!-- Job List -->
                 <div class="jobs-container flex-col-center" id="jobs-container">
                     <div class="feed-page-container" id="job-page">
@@ -90,7 +106,10 @@
                         <div class="profile-name-email">
                             <div class="profile-name"><h1></h1></div>
                             <div class="profile-email"><h4></h4></div>
-                            <button class="profile-update btn btn-primary vis-hidden">Update Profile</button>
+                            <div class="profile-buttons">
+                                <button id="profile-update-button" class="profile-update btn btn-primary hidden">Update Profile</button>
+                                <button id="profile-watch-button" class="profile-update btn btn-primary hidden"></button>
+                            </div>
                         </div>
                         <img class="profile-img" alt="No Image Uploaded">
                     </div>
@@ -98,7 +117,7 @@
                     <h4>Jobs Created</h4>
                     <ul class="profile-jobs-list list-group"></ul>
                     <hr>
-                    <h4>Users Watching</h4>
+                    <h4>Watched By</h4>
                     <ul class="profile-watcher-list list-group"></ul>
                 </div>
                 <!-- Profile Error -->
@@ -112,7 +131,7 @@
             <div id="update-profile-screen" class="update-profile-container card-body hidden">
                 <!-- Update Form -->
                 <div class="update-profile-container flex-col-center" id="update-profile-container">
-                    <form id="update-profile-form">
+                    <form id="update-profile-form" name="update-profile-form">
                         <div class="mb-3 flex-col-center">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" value="">
