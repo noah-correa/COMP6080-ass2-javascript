@@ -1,29 +1,19 @@
 // API Interface Methods
 import { BACKEND_PORT } from './config.js';
 
+// Base URL for Backend API
 const baseURL = `http://localhost:${BACKEND_PORT}`;
-
 
 // Request Builder function
 const buildRequest = (method, token=undefined, body={}) => {
     const req = {
         method: method,
-        headers: {
-            "Content-Type": "application/json"
-        }
+        headers: { "Content-Type": "application/json" }
     }
-    if (token) {
-        req.headers = {
-            ...req.headers,
-            "Authorization": token
-        }
-    }
-    if (method !== 'GET') {
-        req.body = JSON.stringify(body);
-    }
+    if (token) req.headers = { ...req.headers, "Authorization": token };
+    if (method !== 'GET') req.body = JSON.stringify(body);
     return req;
 }
-
 
 
 // API Methods
@@ -93,9 +83,24 @@ const apiMethods = {
             image,
             start,
             description
-        }
+        };
         return fetch(`${baseURL}/job`, 
             buildRequest('POST', token, data))
+                .then(res => res.json());
+    },
+
+    updateJob: (token, data) => {
+        return fetch(`${baseURL}/job`,
+            buildRequest('PUT', token, data))
+                .then(res => res.json());
+    },
+
+    deleteJob: (token, id) => {
+        const data = {
+            id,
+        };
+        return fetch(`${baseURL}/job`,
+            buildRequest('DELETE', token, data))
                 .then(res => res.json());
     },
 

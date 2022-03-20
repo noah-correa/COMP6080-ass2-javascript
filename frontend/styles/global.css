@@ -39,7 +39,7 @@ footer {
     align-items: center;
 }
 
-.btn-primary {
+.btn-primary, .btn-danger {
     border-radius: 20px
 }
 
@@ -179,3 +179,13 @@ img {
     margin-right: auto;
     margin-left: auto;
 }
+
+.job-modify {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* .job-modify > button {
+    width: 100px;
+    height: 50px
+} */

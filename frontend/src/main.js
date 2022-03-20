@@ -482,12 +482,34 @@ const handleProfileWatcheeButton = (event) => {
     changeScreen('profile-screen', loadProfileScreen, [id]);
 }
 
+const handleJobUpdate = (event) => {
+    event.preventDefault();
+    console.log("updated job");
+    event.currentTarget.removeEventListener('click', handleJobUpdate);
+    changeScreen('update-job-screen', loadUpdateJobScreen, [event.currentTarget.job]);
+}
+
+const handleJobDelete = (event) => {
+    event.preventDefault();
+    console.log("deleted job");
+    const deleteButton = event.currentTarget;
+    const { id } = deleteButton;
+    API.deleteJob(state.user.userToken, id).then(res => {
+        if (res.error) showError('profile-error', res.error);
+        else {
+            hideError('profile-error');
+            deleteButton.removeEventListener('click', handleJobDelete);
+            changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+        }
+    });
+}
+
 const constructProfileJob = (job, name) => {
     const profileJobTemplate = document.getElementById('profile-job-item-template').cloneNode(true);
     profileJobTemplate.removeAttribute('id');
     profileJobTemplate.setAttribute('id', `job-${job.id}`);
 
-    const [title, postedInfo, hr, content] = profileJobTemplate.children;
+    const [title, postedInfo, hr, content, hr2, modify] = profileJobTemplate.children;
     const [img, startDesc] = content.children;
     // Title
     title.textContent = `${job.title}`;
@@ -501,6 +523,15 @@ const constructProfileJob = (job, name) => {
     startDesc.children[0].textContent = `Start date: ${formatDate(new Date(job.start))}`
     // Description
     startDesc.children[1].textContent = job.description;
+
+    const [updateButton, deleteButton] = modify.children;
+
+    // Update and Delete Listeners
+    updateButton.job = job;
+    deleteButton.id = job.id;
+    updateButton.addEventListener('click', handleJobUpdate);
+    deleteButton.addEventListener('click', handleJobDelete);
+
     return profileJobTemplate;
 }
 
@@ -662,6 +693,7 @@ const loadProfileUpdateScreen = (prevUser) => {
 
 
 //* New Job Screen
+// #region
 const handleNewJobButton = (event) => {
     event.preventDefault();
     const { title, start, description, newjobimage } = document.forms['new-job-form'];
@@ -686,9 +718,56 @@ const handleNewJobButton = (event) => {
         showError('new-job-error', "Invalid image file");
     }
 }
+// #endregion
 
-// const loadNewJobScreen = () => {
-// }
+
+//* Update Job Screen
+const handleUpdateJobButton = (event) => {
+    event.preventDefault();
+    const { title, start, description, image } = document.getElementById('update-job-form');
+    const id = Number.parseInt(document.getElementById('update-job-button').getAttribute('data-id'), 10);
+    // console.log(id);
+    hideError('update-job-error');
+    const data = { id };
+    if (title.value) data.title = title.value;
+    if (start.value) data.start = new Date(start.value).toISOString();
+    if (description.value) data.description = description.value;
+    if (image.files[0]) {
+        try {
+            fileToDataUrl(image.files[0]).then(res => {
+                data.image = res;                
+                API.updateJob(state.user.userToken, data).then(res => {
+                    if (res.error) showError('update-job-error', res.error);
+                    else {
+                        changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+                    }
+                });
+            })
+        } catch {
+            showError('update-job-error', "Invalid image file");
+        }
+    } else {
+        console.log(data);
+        API.updateJob(state.user.userToken, data).then(res => {
+            if (res.error) showError('update-job-error', res.error);
+            else {
+                event.currentTarget.removeEventListener('submit', handleUpdateProfile);
+                changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+            }
+        });
+
+    }
+}
+
+const loadUpdateJobScreen = (job) => {
+    const { title, start, description, previmage } = document.getElementById('update-job-form');
+    title.value = job.title;
+    start.value = job.start;
+    description.value = job.description;
+    previmage.src = job.image;
+    document.getElementById('update-job-button').setAttribute('data-id', job.id);
+}
+
 
 //* Event Listeners
 document.getElementById('nav-login').addEventListener('click', handleNavLogin);
@@ -697,3 +776,4 @@ document.getElementById('nav-dashboard').addEventListener('click', handleNavDash
 document.getElementById('login').addEventListener('click', handleLogin);
 document.getElementById('register').addEventListener('click', handleRegister);
 document.getElementById('new-job-button').addEventListener('click', handleNewJobButton);
+document.getElementById('update-job-button').addEventListener('click', handleUpdateJobButton);

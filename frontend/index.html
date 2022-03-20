@@ -204,6 +204,41 @@
                     <button class="error-close btn-close" id="new-job-error-close" type="button"></button>
                 </div>
             </div>
+
+            <!--* Update Job Screen -->
+            <div id="update-job-screen" class="update-job-container card-body hidden">
+                <!-- update Job Form -->
+                <div class="update-job-container flex-col-center" id="update-job-container">
+                    <h4>Update Job</h4>
+                    <form id="update-job-form" name="update-job-form">
+                        <div class="mb-3 flex-col-center">
+                            <label for="update-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="update-title" name="title" value="" required>
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="update-start" class="form-label">Start</label>
+                            <input type="date" class="form-control" id="update-start" name="start" value="" required>
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="update-description" class="form-label">Description</label>
+                            <textarea type="text" class="form-control" id="update-description" name="description" value="" required></textarea>
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="update-job-image" class="form-label">Image</label>
+                            <img id="update-job-image" class="job-img" alt="No Image Uploaded" name="previmage">
+                            <input type="file" class="form-control" id="update-job-image" name="image" required>
+                        </div>
+                        <div class="flex-col-center">
+                            <button type="submit" class="btn btn-primary mb-3" id="update-job-button">Update Job</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Update Job Error -->
+                <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="update-job-error">
+                    <span class="update-job-error-message"></span>
+                    <button class="error-close btn-close" id="update-job-error-close" type="button"></button>
+                </div>
+            </div>
         </div>
 
         <!--* Templates -->
@@ -251,6 +286,11 @@
                         <p class="job-start-date"></p>
                         <p class="job-description"></p>
                     </div>
+                </div>
+                <hr>
+                <div class="job-modify">
+                    <button class="btn btn-primary">Update</button>
+                    <button class="btn btn-danger">Delete</button>
                 </div>
             </li>
 
