@@ -30,10 +30,10 @@
             <div id="login-screen" class="login-container card-body">
                 <!-- Login Form -->
                 <form id="login" name="login" class="flex-col-center">
-                    <label for="email">Email</label>
-                    <input type="email" name="email"/><br/>
-                    <label for="password">Password</label>
-                    <input type="password" name="password"/><br/>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control"/><br/>
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control"/><br/>
                     <input class="btn btn-primary" type="submit" value="Login"/>
                 </form>
                 <!-- Login Error -->
@@ -47,15 +47,15 @@
             <div id="register-screen" class="register-container card-body hidden">
                 <!-- Register Form -->
                 <form id="register" name="register" class="flex-col-center">
-                    <label for="email">Email:</label>
-                    <input type="email" name="email"/><br/>
-                    <label for="name">Name:</label>
-                    <input type="text" name="name"/><br/>
-                    <label for="password">Password:</label>
-                    <input type="password" name="password"/><br/>
-                    <label for="confirmpassword">Confirm Password:</label>
-                    <input type="password" name="confirmpassword"/><br/>
-                    <input type="submit" value="Register"/>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control"/><br/>
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control"/><br/>
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control"/><br/>
+                    <label for="confirmpassword" class="form-label">Confirm Password</label>
+                    <input type="password" name="confirmpassword" class="form-control"/><br/>
+                    <input type="submit" value="Register" class="btn btn-primary"/>
                 </form>
                 <!-- Register Error -->
                 <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="register-error">
@@ -80,6 +80,11 @@
                         <span class="email-search-error-message"></span>
                         <button class="error-close btn-close" id="email-search-error-close" type="button"></button>
                     </div>
+                </div>
+                <hr>
+                <!-- Create New Job Button -->
+                <div class="flex-col-center">
+                    <button id="dashboard-new-job" class="btn btn-primary">Create a new job</button>
                 </div>
                 <hr>
                 <!-- Job List -->
@@ -131,6 +136,7 @@
             <div id="update-profile-screen" class="update-profile-container card-body hidden">
                 <!-- Update Form -->
                 <div class="update-profile-container flex-col-center" id="update-profile-container">
+                    <h4>Update your Profile</h4>
                     <form id="update-profile-form" name="update-profile-form">
                         <div class="mb-3 flex-col-center">
                             <label for="email" class="form-label">Email</label>
@@ -164,6 +170,40 @@
                     <button class="error-close btn-close" id="update-profile-error-close" type="button"></button>
                 </div>
             </div>
+
+            <!--* New Job Screen -->
+            <div id="new-job-screen" class="new-job-container card-body hidden">
+                <!-- New Job Form -->
+                <div class="new-job-container flex-col-center" id="new-job-container">
+                    <h4>Create a New Job</h4>
+                    <form id="new-job-form" name="new-job-form">
+                        <div class="mb-3 flex-col-center">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" value="" required>
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="start" class="form-label">Start</label>
+                            <input type="date" class="form-control" id="start" value="" required>
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea type="text" class="form-control" id="description" value="" required></textarea>
+                        </div>
+                        <div class="mb-3 flex-col-center">
+                            <label for="newjobimage" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="newjobimage" required>
+                        </div>
+                        <div class="flex-col-center">
+                            <button type="submit" class="btn btn-primary mb-3" id="new-job-button">Create Job</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- New Job Error -->
+                <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="new-job-error">
+                    <span class="new-job-error-message"></span>
+                    <button class="error-close btn-close" id="new-job-error-close" type="button"></button>
+                </div>
+            </div>
         </div>
 
         <!--* Templates -->
@@ -172,14 +212,16 @@
             <li class="list-group-item job-item" id="job-item-template">
                 <h2 class="job-name"></h2>
                 <div class="job-posted-info">
-                    <button class="job-creator btn btn-link" type="button"><h4></h4></button>
+                    <button class="job-creator btn btn-link card-title" type="button"><h4></h4></button>
                     <h4 class="job-posted-date"></h4>
                 </div>
                 <hr>
-                <div class="job-start-date"></div>
-                <div class="job-img-description">
+                <div class="job-content">
                     <img class="job-img"/>
-                    <div class="job-description"></div>
+                    <div class="job-start-description">
+                        <p class="job-start-date"></p>
+                        <p class="job-description"></p>
+                    </div>
                 </div>
                 <hr>
                 <div class="job-interactions-popup" data-popup="none">
@@ -199,14 +241,16 @@
             <li class="list-group-item profile-job-item" id="profile-job-item-template">
                 <h2 class="job-name"></h2>
                 <div class="job-posted-info">
-                    <h4></h4>
+                    <h4 class="card-title"></h4>
                     <h4 class="job-posted-date"></h4>
                 </div>
                 <hr>
-                <div class="job-start-date"></div>
-                <div class="job-img-description">
+                <div class="job-content">
                     <img class="job-img"/>
-                    <div class="job-description"></div>
+                    <div class="job-start-description">
+                        <p class="job-start-date"></p>
+                        <p class="job-description"></p>
+                    </div>
                 </div>
             </li>
 

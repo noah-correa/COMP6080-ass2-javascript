@@ -1,21 +1,30 @@
 /* base styles, feel free to edit */
+/* html {
+    
+    background-color: #f3f2ef;
+} */
+
+
 html, body {
-    margin: 10px;
-    padding: 10px;
-    /* height: 100%; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 400px;
+    min-height: 700px;
     font-family: Arial;
-    /* min-width: 400px;
-    min-height: 700px; */
+    background-color: #f3f2ef;
+}
+
+body {
+    width: 95%;
 }
 
 footer {
-    /* position: absolute; */
-    /* bottom: 0px; */
-    /* border: 1px solid red; */
-    /* margin-right: auto; */
-    /* margin-left: auto; */
+    position: absolute;
+    bottom: 0px;
 }
 
+/* GENERAL */
 .hidden {
     display: none;
 }
@@ -24,8 +33,27 @@ footer {
     visibility: hidden;
 }
 
+.flex-col-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.btn-primary {
+    border-radius: 20px
+}
+
+.card {
+    border-radius: 10px;
+}
+
+/* NAVBAR */
+header {
+    width: 100%;
+}
+
 .nav-bar {
-    height: 150px;
+    height: 100px;
     display: flex;
     justify-content: space-between;
 }
@@ -37,12 +65,30 @@ footer {
 
 #nav-user-container {
     width: 100px;
+    text-align: center;
 }
 
-.flex-col-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+/* MAIN CONTENT */
+main {
+    width: 100%;
+}
+
+.content-container {
+    width: 100%;
+    /* border: 1px solid red; */
+}
+
+.content-container > div {
+    width: 100%;
+}
+
+/* .content-container > div > div {
+    width: 100%;
+} */
+
+#login-screen, #register-screen {
+    width: 40%;
 }
 
 .jobs-container {
@@ -51,47 +97,33 @@ footer {
     align-items: center;
 }
 
-.dashboard-container {
-    width: 90%;
-}
-/* .job-list {
-    list-style: none;
-} */
-
-/* .job-item > div {
-    display: flex;
-    flex-direction: column;
-} */
-
 .job-posted-info {
     display: flex;
     justify-content: space-between;
+    width: 100%;
 }
-
-/* .job-creator {
-    font-size: calc(1.275rem + .3vw);
-} */
 
 .job-interactions {
     display: flex;
     justify-content: space-between;
 }
 
-.job-img-description {
+.job-content {
     display: flex;
 }
 
-.job-img-description .job-img {
-    align-self: center;
-    margin-right: 20px;
+.job-img {
+    margin-right: 10px;
 }
 
-.job-img-description .job-description {
-    display: inline;
+.job-start-description {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .job-start-date {
-    text-align: center;
+    align-self: flex-end;
 }
 
 .job-interactions-popup {
@@ -99,10 +131,7 @@ footer {
     flex-direction: column;
     align-items: center;
     position: absolute;
-    /* bottom: 40px; */
     top: 20%;
-    /* left: 0px; */
-    /* margin: 20px;  */
     left: 0;
     right: 0;
     margin-left: auto;
@@ -120,18 +149,8 @@ ul {
 .job-heart {
     border: none;
     background-color: transparent;
-    /* border: 1px solid red; */
     position: relative;
     top: 8px;
-    /* left: 5px; */
-}
-
-
-
-
-
-.profile-container {
-    width: 100%;
 }
 
 .profile-name-email-img {
@@ -141,7 +160,8 @@ ul {
     justify-content: space-between;
 }
 
-.profile-img {
+img {
+    object-fit: contain;
     width: 150px;
     height: 150px;
     border: 1px solid grey;
