@@ -19,6 +19,7 @@
 * 10th March: Added extra non-required information to GET /user jobs for people wanting to make app nicer; GET `job/feed` now returns jobs sorted by createdAt date
 * 12th March: Removed the "optional" part of fields for the job to avoid confusion; 2.4.1 updated to say "shows total number of users they are watched by" instead of "they watch". This makes it much easier. More info [here](https://edstem.org/au/courses/7608/discussion/745353)
 * 13th March: Adjusted the weightings of each milestone to more accurately reflect the milestones summing to 70%
+* 26th March: 2.4.1 is clearly a confusing point. Whichever of the two ways you interpreted it [we will still mark you the same.](https://edstem.org/au/courses/7608/discussion/772045)
 
 ## 1. Background & Motivation
 
