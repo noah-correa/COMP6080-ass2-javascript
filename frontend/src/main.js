@@ -2,7 +2,6 @@ import { fileToDataUrl } from './helpers.js';
 import API from './api.js';
 
 
-
 //* State Object
 const state = {
     user: {
@@ -30,14 +29,10 @@ const showScreen = (id) => {
 }
 
 const changeScreen = (id, cb=undefined, args=undefined) => {
-    // try {
     if (args) cb(...args);
     else if (cb) cb();
     hideScreen(state.currentScreen);
     showScreen(id);
-    // } catch {
-        // console.log("Error: Cannot change screens")
-    // }
 }
 // #endregion
 
@@ -45,19 +40,20 @@ const changeScreen = (id, cb=undefined, args=undefined) => {
 //* Error helper functions
 // #region
 const hideError = (id) => {
-    document.getElementById(id).classList.add('hidden');
+    document.getElementById('error-alert').classList.add('hidden');
 }
 
-const showError = (id, message) => {
+const showError = (message) => {
     try {
-        document.getElementById(id).classList.remove('hidden');
-        document.getElementById(id).childNodes[1].textContent = message;
-        document.getElementById(`${id}-close`).addEventListener('click', (event) => {
+        document.getElementById('error-alert').classList.remove('hidden');
+        document.getElementById('error-message').textContent = message;
+        document.getElementById('error-close').addEventListener('click', (event) => {
             event.preventDefault();
-            hideError(id);
+            hideError();
         })
-    } catch {
-        console.error("Error: Cannot hide error")
+    } catch (error) {
+        console.error("Error: Cannot show error")
+        console.error(error);
     }
 }
 // #endregion
@@ -99,9 +95,9 @@ const handleLogin = (event) => {
     const { email, password } = document.forms.login;
     API.login(email.value, password.value).then(res => {
         if (res.error) {
-            showError('login-error', res.error);
+            showError(res.error);
         } else {
-            hideError('login-error');
+            hideError();
             state.user.userToken = res.token;
             state.user.userId = res.userId;
             state.user.isLoggedIn = true;
@@ -109,6 +105,11 @@ const handleLogin = (event) => {
             document.title = "LurkForWork - Dashboard";
         }
     });
+}
+
+const handleSwitchRegister = (event) => {
+    event.preventDefault();
+    changeScreen('register-screen');
 }
 // #endregion
 
@@ -121,15 +122,15 @@ const handleRegister = (event) => {
     
     if (password.value !== confirmpassword.value) {
         // Passwords do not match
-        showError('register-error', 'Passwords do not match');
+        showError('Passwords do not match');
         return;
     }
 
     API.register(email.value, password.value, name.value).then(res => {
         if (res.error) {
-            showError('register-error', res.error);
+            showError(res.error);
         } else {
-            hideError('register-error');
+            hideError();
             state.user.userToken = res.token;
             state.user.userId = res.userId;
             state.user.isLoggedIn = true;
@@ -164,16 +165,19 @@ const getJobDate = (timeCreated) => {
     }
 }
 
-const clearList = (parent) => {
+const clearList = (parent, except=undefined) => {
     [...parent.children].forEach((child) => {
-        parent.removeChild(child);
+        if (except && except === child.id);
+        else parent.removeChild(child);
     });
 }
 
 const handleProfileButton = (event) => {
     event.preventDefault();
     event.currentTarget.removeEventListener('click', handleProfileButton);
-    changeScreen('profile-screen', loadProfileScreen, [event.currentTarget.id]);
+    document.getElementById('job-likes-modal-close').click();
+    document.getElementById('job-comments-modal-close').click();
+    changeScreen('profile-screen', loadProfileScreen, [event.currentTarget.userId]);
 }
 
 const handleHeartButton = (event) => {
@@ -183,11 +187,18 @@ const handleHeartButton = (event) => {
     let liked = userLiked;
     API.likeJob(state.user.userToken, job.id, !liked).then(res => {
         if (res.error) {
-            showError('dashboard-error', res.error);
+            showError(res.error);
         } else {
-            hideError('dashboard-error');
+            hideError();
             // console.log(event.currentTarget);
-            heartButton.textContent = liked ? 'favorite_border' : 'favorite';
+            if (userLiked) {
+                heartButton.classList.add('bi-star');
+                heartButton.classList.remove('bi-star-fill');
+            } else {
+                heartButton.classList.add('bi-star-fill');
+                heartButton.classList.remove('bi-star');
+            }
+            // heartButton.textContent = liked ? 'favorite_border' : 'favorite';
             liked = !liked;
             heartButton.removeEventListener('click', handleHeartButton);
             changeScreen('dashboard-screen', loadDashboardScreen);
@@ -195,12 +206,89 @@ const handleHeartButton = (event) => {
     });
 }
 
+const handleLikesModal = (event) => {
+    event.preventDefault();
+    // console.log("showing modal");
+    const { job } = event.currentTarget;
+    const likesModalList = document.getElementById('job-likes-list');
+    clearList(likesModalList);
+    if (job.likes.length === 0) {
+        const noJob = document.createElement('li');
+        noJob.classList.add('list-group-item', 'fst-italic');
+        noJob.textContent = "No likes"
+        likesModalList.appendChild(noJob);
+    } else {
+        job.likes.forEach((like, index) => {
+            // Create a new like list item
+            const newItem = document.createElement('li');
+            const newLike = document.createElement('button');
+            newItem.setAttribute('key', index);
+            newItem.classList.add('list-group-item');
+            newLike.classList.add('btn', 'btn-link');
+            newLike.textContent = `${like.userName}`;
+            newLike.userId = like.userId;
+            newLike.addEventListener('click', handleProfileButton);
+            newItem.appendChild(newLike);
+            likesModalList.appendChild(newItem);
+        });
+        // console.log(likesModalList);
+    }
+}
+
+const handleAddComment = (event) => {
+    event.preventDefault();
+    const { jobId } = event.currentTarget;
+    const comment = document.getElementById('add-comment-text').value;
+    console.log(jobId, comment);
+    API.addComment(state.user.userToken, jobId, comment).then(res => {
+        if (res.error) showError(res.error);
+        else {
+            hideError();
+            document.getElementById('job-comments-modal-close').click();
+            changeScreen('dashboard-screen', loadDashboardScreen);
+        }
+    });
+
+}
+
+const handleCommentsModal = (event) => {
+    event.preventDefault();
+    const { job } = event.currentTarget;
+    const commentsModalList = document.getElementById('job-comments-list');
+    clearList(commentsModalList, 'add-comment-item');
+    document.getElementById('add-comment-button').jobId = job.id;
+
+    if (job.comments.length === 0) {
+        const noComment = document.createElement('li');
+        noComment.classList.add('list-group-item', 'fst-italic');
+        noComment.textContent = "No comments";
+        commentsModalList.appendChild(noComment);
+    } else {
+        job.comments.forEach((comment, index) => {
+            // Create a new like list item
+            const newItem = document.createElement('li');
+            const newCommentButton = document.createElement('button');
+            const newComment = document.createElement('span');
+            newComment.textContent = `${comment.comment}`;
+            newItem.setAttribute('key', index);
+            newItem.classList.add('list-group-item');
+            newCommentButton.classList.add('btn', 'btn-link');
+            newCommentButton.textContent = `${comment.userName}: `;
+            newCommentButton.userId = comment.userId;
+            newCommentButton.addEventListener('click', handleProfileButton);
+            newItem.appendChild(newCommentButton);
+            newItem.appendChild(newComment);
+            commentsModalList.appendChild(newItem);
+        })
+    }
+}
+
 const constructJobItem = (user, job) => {
     const jobTemplate = document.getElementById('job-item-template').cloneNode(true);
     jobTemplate.removeAttribute('id');
     jobTemplate.setAttribute('id', `job-${job.id}`);
 
-    const [title, postedInfo, hr, content, hr2, popups, interactions] = jobTemplate.children;
+    const [title, postedInfo, hr, content, hr2, interactions] = jobTemplate.children;
     const [img, startDesc] = content.children;
     // Title
     title.textContent = `${job.title}`;
@@ -219,99 +307,40 @@ const constructJobItem = (user, job) => {
     const [heartButton, likesButton] = jobLikesContainer.children;
     likesButton.textContent = `${job.likes.length} like${job.likes.length === 1 ? "" : "s"}`
     commentsButton.textContent = `${job.comments.length} comment${job.comments.length === 1 ? "" : "s"}`
+    commentsButton.id = `comments-${job.id}`;
     // Poster Profile Button
-    postedInfo.children[0].id = user.id;
+    postedInfo.children[0].userId = user.id;
     postedInfo.children[0].addEventListener('click', handleProfileButton);
 
     // Likes/Comments Popup
-    const [likesPopup, commentsPopup] = popups.children;
+    // const [likesPopup, commentsPopup] = popups.children;
 
     // Set inital icon state
     const icon = heartButton.children[0];
     let userLiked = job.likes.find((like) => {
         return like.userId === state.user.userId;
     });
-    icon.textContent = userLiked ? 'favorite' : 'favorite_border';
+    if (userLiked) {
+        icon.classList.add('bi-star-fill');
+        icon.classList.remove('bi-star');
+    } else {
+        icon.classList.add('bi-star');
+        icon.classList.remove('bi-star-fill');
+    }
+    // icon.textContent = userLiked ? 'favorite' : 'favorite_border';
 
     // Heart Button Click listener
-    // console.log(heartButton);
     heartButton.job = job;
     heartButton.userLiked = userLiked;
     heartButton.addEventListener('click', handleHeartButton);
 
     // Like Button Click listener
-    likesButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        const popupsState = popups.getAttribute('data-popup');
-        if (popupsState === 'none') {
-            popups.setAttribute('data-popup', 'likes');
-            likesPopup.classList.remove('hidden');
-            job.likes.forEach((like, index) => {
-                // Create a new like list item
-                const newItem = document.createElement('li');
-                const newLike = document.createElement('button');
-
-                newItem.setAttribute('key', index);
-                newItem.classList.add('list-group-item', 'text-center');
-                newLike.classList.add('btn', 'btn-link');
-                newLike.textContent = `${like.userName}`;
-                newLike.id = like.userId;
-                newLike.addEventListener('click', handleProfileButton);
-                newItem.appendChild(newLike);
-                likesPopup.appendChild(newItem);
-            })
-        } else if (popupsState === 'likes') {
-            popups.setAttribute('data-popup', 'none');
-            // Clear Likes list
-            clearList(likesPopup);
-            likesPopup.classList.add('hidden');
-
-        }
-    })
-
-    // Like Button Blur listener
-    // likesButton.addEventListener('blur', (event) => {
-    //     event.preventDefault();
-    //     popups.setAttribute('data-popup', 'none');
-    //     clearList(likesPopup);
-    //     likesPopup.classList.add('hidden');
-    // })
+    likesButton.job = job;
+    likesButton.addEventListener('click', handleLikesModal);
 
     // Comment Button Click listener
-    commentsButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        const popupsState = popups.getAttribute('data-popup');
-        if (popupsState === 'none') {
-            popups.setAttribute('data-popup', 'comments');
-            commentsPopup.classList.remove('hidden');
-            job.comments.forEach((comment, index) => {
-                // Create a new like list item
-                const newItem = document.createElement('li');
-                const newComment = document.createElement('button');
-                newItem.setAttribute('key', index);
-                newItem.classList.add('list-group-item');
-                newComment.classList.add('btn', 'btn-link');
-                newComment.textContent = `${comment.userName}: ${comment.comment}`;
-                newComment.id = comment.userId;
-                newComment.addEventListener('click', handleProfileButton);
-                newItem.appendChild(newComment);
-                commentsPopup.appendChild(newItem);
-            })
-        } else if (popupsState === 'comments') {
-            popups.setAttribute('data-popup', 'none');
-            // Clear Comments list
-            clearList(commentsPopup);
-            commentsPopup.classList.add('hidden');
-        }
-    })
-
-    // Comment Button Blur listener
-    // commentsButton.addEventListener('blur', (event) => {
-    //     event.preventDefault();
-    //     popups.setAttribute('data-popup', 'none');
-    //     clearList(commentsPopup);
-    //     commentsPopup.classList.add('hidden');
-    // })
+    commentsButton.job = job;
+    commentsButton.addEventListener('click', handleCommentsModal);
 
     return jobTemplate;
 }
@@ -319,9 +348,9 @@ const constructJobItem = (user, job) => {
 const constructJobFeed = (feed, page) => {
     API.getJobFeed(state.user.userToken, page).then(res => {
         if (res.error) {
-            showError('dashboard-error', res.error);
+            showError(res.error);
         } else if (res.length === 0) { 
-            hideError('dashboard-error');
+            hideError();
             // Clear Job List
             clearList(feed);
             const noJobs = document.createElement('li');
@@ -330,15 +359,15 @@ const constructJobFeed = (feed, page) => {
             feed.appendChild(noJobs);
             return false;
         } else {
-            hideError('dashboard-error');
+            hideError();
             // Clear Job List
             clearList(feed);
             res.forEach((job, index) => {
                 API.getUser(state.user.userToken, job.creatorId).then(userJson => {
                     if (userJson.error) {
-                        showError('dashboard-error', userJson.error);
+                        showError(userJson.error);
                     } else {
-                        hideError('dashboard-error');
+                        hideError();
                         const newJob = constructJobItem(userJson, job);
                         newJob.setAttribute('key', index);
                         feed.appendChild(newJob);
@@ -361,7 +390,7 @@ const handleEmailSearch = (event) => {
     
     // console.log(email);
     API.watchUser(state.user.userToken, email.value, true).then(res => {
-        if (res.error) showError('email-search-error', res.error);
+        if (res.error) showError(res.error);
         else {
             button.removeEventListener('click', handleEmailSearch);
             changeScreen('dashboard-screen', loadDashboardScreen);
@@ -391,9 +420,9 @@ const loadDashboardScreen = () => {
         // Set up Navbar Logged in user
         API.getUser(state.user.userToken, state.user.userId).then(res => {
             if (res.error) {
-                showError('dashboard-error', res.error);
+                showError(res.error);
             } else {
-                hideError('dashboard-error');
+                hideError();
                 document.getElementById('nav-user-container').classList.remove('vis-hidden');
                 document.getElementById('nav-user').textContent = res.name;
                 document.getElementById('nav-user').addEventListener('click', handleNavUserProfile);
@@ -454,10 +483,10 @@ const handleUpdateProfileButton = (event) => {
 const handleWatchButton = (event) => {
     event.preventDefault();
     const watch = event.currentTarget;
-    const { res, watching, id } = watch;
+    const { res, watching, userId } = watch;
     let isWatching = watching;
     API.watchUser(state.user.userToken, res.email, !isWatching).then(watchRes => {
-        if (watchRes.error) showError('profile-error', watchRes.error);
+        if (watchRes.error) showError(watchRes.error);
         else {
             if (isWatching) {
                 watch.textContent = 'Watch User';
@@ -470,16 +499,16 @@ const handleWatchButton = (event) => {
             }
             isWatching = !isWatching;
             watch.removeEventListener('click', handleWatchButton);
-            changeScreen('profile-screen', loadProfileScreen, [id]);
+            changeScreen('profile-screen', loadProfileScreen, [userId]);
         }
     });
 }
 
 const handleProfileWatcheeButton = (event) => {
     event.preventDefault();
-    const { id } = event.currentTarget;
+    const { userId } = event.currentTarget;
     event.currentTarget.removeEventListener('click', handleProfileWatcheeButton);
-    changeScreen('profile-screen', loadProfileScreen, [id]);
+    changeScreen('profile-screen', loadProfileScreen, [userId]);
 }
 
 const handleJobUpdate = (event) => {
@@ -493,11 +522,11 @@ const handleJobDelete = (event) => {
     event.preventDefault();
     console.log("deleted job");
     const deleteButton = event.currentTarget;
-    const { id } = deleteButton;
-    API.deleteJob(state.user.userToken, id).then(res => {
-        if (res.error) showError('profile-error', res.error);
+    const { jobId } = deleteButton;
+    API.deleteJob(state.user.userToken, jobId).then(res => {
+        if (res.error) showError(res.error);
         else {
-            hideError('profile-error');
+            hideError();
             deleteButton.removeEventListener('click', handleJobDelete);
             changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
         }
@@ -528,7 +557,7 @@ const constructProfileJob = (job, name) => {
 
     // Update and Delete Listeners
     updateButton.job = job;
-    deleteButton.id = job.id;
+    deleteButton.jobId = job.id;
     updateButton.addEventListener('click', handleJobUpdate);
     deleteButton.addEventListener('click', handleJobDelete);
 
@@ -541,7 +570,7 @@ const constructProfileWatchee = (id, name) => {
     watcheeTemplate.setAttribute('id', `profile-${id}`);
     const profileButton = watcheeTemplate.children[0];
     profileButton.textContent = name;
-    profileButton.id = id;
+    profileButton.userId = id;
     profileButton.addEventListener('click', handleProfileWatcheeButton);
     return watcheeTemplate;
 }
@@ -551,9 +580,9 @@ const loadProfileScreen = (userId) => {
     // Profile User JSON
     API.getUser(state.user.userToken, id).then(res => {
         // console.log(res);
-        if (res.error) showError('profile-error', res.error);
+        if (res.error) showError(res.error);
         else {
-            hideError('profile-error');
+            hideError();
             const [nameEmailUpdateImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
             const [nameEmailUpdate, img] = nameEmailUpdateImg.children;
             const [name, email, buttons] = nameEmailUpdate.children;
@@ -587,7 +616,7 @@ const loadProfileScreen = (userId) => {
                 // Watching button event listener
                 watch.res = res;
                 watch.watching = watching;
-                watch.id = id;
+                watch.userId = id;
                 watch.addEventListener('click', handleWatchButton);
             }
             name.children[0].textContent = res.name;
@@ -611,6 +640,7 @@ const loadProfileScreen = (userId) => {
 
             // Watchee List
             clearList(watchedBy);
+            t2.textContent = `Watched by ${res.watcheeUserIds.length} User${res.watcheeUserIds.length === 1 ? "" : "s"}`;
             if (res.watcheeUserIds.length === 0) {
                 const noWatchees = document.createElement('li');
                 noWatchees.classList.add('list-group-item');
@@ -620,9 +650,9 @@ const loadProfileScreen = (userId) => {
                 res.watcheeUserIds.forEach((watcheeId, index) => {
                     API.getUser(state.user.userToken, watcheeId).then(watchee => {
                         if (watchee.error) {
-                            showError('profile-error', watchee.error);
+                            showError(watchee.error);
                         } else {
-                            hideError('profile-error');
+                            hideError();
                             const newWatchee = constructProfileWatchee(watcheeId, watchee.name);
                             newWatchee.setAttribute('key', index);
                             watchedBy.appendChild(newWatchee);
@@ -640,14 +670,14 @@ const loadProfileScreen = (userId) => {
 // #region
 const handleUpdateProfile = (event) => {
     event.preventDefault();
-    hideError('update-profile-error');
+    hideError();
     const id = document.getElementById('update-profile-button').getAttribute('data-id');
     const { email, password, cpassword, name, image } = document.forms['update-profile-form'];
     const data = {};
     if (email.value) data.email = email.value;
     if (password.value && password.value === cpassword.value) data.password = password.value;
     if (password.value && password.value !== cpassword.value) {
-        showError('update-profile-error', "Passwords do not match");
+        showError("Passwords do not match");
         return;
     }
     if (name.value) data.name = name.value;
@@ -656,7 +686,7 @@ const handleUpdateProfile = (event) => {
             fileToDataUrl(image.files[0]).then(res => {
                 data.image = res;                
                 API.updateProfile(state.user.userToken, data).then(res => {
-                    if (res.error) showError('update-profile-error', res.error);
+                    if (res.error) showError(res.error);
                     else {
                         if (data.name) document.getElementById('nav-user').textContent = data.name;
                         changeScreen('profile-screen', loadProfileScreen, [id]);
@@ -664,12 +694,12 @@ const handleUpdateProfile = (event) => {
                 });
             })
         } catch {
-            showError('update-profile-error', "Invalid image file");
+            showError("Invalid image file");
         }
     } else {
         // console.log(data);
         API.updateProfile(state.user.userToken, data).then(res => {
-            if (res.error) showError('update-profile-error', res.error);
+            if (res.error) showError(res.error);
             else {
                 if (data.name) document.getElementById('nav-user').textContent = data.name;
                 event.currentTarget.removeEventListener('submit', handleUpdateProfile);
@@ -699,15 +729,15 @@ const handleNewJobButton = (event) => {
     const { title, start, description, newjobimage } = document.forms['new-job-form'];
     try {
         if (!document.forms['new-job-form'].checkValidity()) {
-            showError('new-job-error', "Please fill out all fields")
+            showError("Please fill out all fields")
         } else {
-            hideError('new-job-error');
+            hideError();
             fileToDataUrl(newjobimage.files[0]).then(img => {
                 const startDate = new Date(start.value).toISOString();
                 API.addJob(state.user.userToken, title.value, img, startDate, description.value).then(jobRes => {
-                    if (jobRes.error) showError('new-job-error', jobRes.error);
+                    if (jobRes.error) showError(jobRes.error);
                     else {
-                        hideError('new-job-error');
+                        hideError();
                         console.log(jobRes.id);
                     }
                 });
@@ -715,19 +745,20 @@ const handleNewJobButton = (event) => {
             })
         }
     } catch {
-        showError('new-job-error', "Invalid image file");
+        showError("Invalid image file");
     }
 }
 // #endregion
 
 
 //* Update Job Screen
+// #region
 const handleUpdateJobButton = (event) => {
     event.preventDefault();
     const { title, start, description, image } = document.getElementById('update-job-form');
     const id = Number.parseInt(document.getElementById('update-job-button').getAttribute('data-id'), 10);
     // console.log(id);
-    hideError('update-job-error');
+    hideError();
     const data = { id };
     if (title.value) data.title = title.value;
     if (start.value) data.start = new Date(start.value).toISOString();
@@ -737,19 +768,19 @@ const handleUpdateJobButton = (event) => {
             fileToDataUrl(image.files[0]).then(res => {
                 data.image = res;                
                 API.updateJob(state.user.userToken, data).then(res => {
-                    if (res.error) showError('update-job-error', res.error);
+                    if (res.error) showError(res.error);
                     else {
                         changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
                     }
                 });
             })
         } catch {
-            showError('update-job-error', "Invalid image file");
+            showError("Invalid image file");
         }
     } else {
         console.log(data);
         API.updateJob(state.user.userToken, data).then(res => {
-            if (res.error) showError('update-job-error', res.error);
+            if (res.error) showError(res.error);
             else {
                 event.currentTarget.removeEventListener('submit', handleUpdateProfile);
                 changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
@@ -767,13 +798,17 @@ const loadUpdateJobScreen = (job) => {
     previmage.src = job.image;
     document.getElementById('update-job-button').setAttribute('data-id', job.id);
 }
+// #endregion
 
 
 //* Event Listeners
 document.getElementById('nav-login').addEventListener('click', handleNavLogin);
 document.getElementById('nav-register').addEventListener('click', handleNavRegister);
 document.getElementById('nav-dashboard').addEventListener('click', handleNavDashboard);
-document.getElementById('login').addEventListener('click', handleLogin);
+document.getElementById('login-button').addEventListener('click', handleLogin);
+document.getElementById('switch-register').addEventListener('click', handleSwitchRegister);
 document.getElementById('register').addEventListener('click', handleRegister);
 document.getElementById('new-job-button').addEventListener('click', handleNewJobButton);
 document.getElementById('update-job-button').addEventListener('click', handleUpdateJobButton);
+document.getElementById('add-comment-button').addEventListener('click', handleAddComment);
+

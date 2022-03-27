@@ -104,6 +104,15 @@ const apiMethods = {
                 .then(res => res.json());
     },
 
-}
+    addComment: (token, id, comment) => {
+        const data = {
+            id,
+            comment,
+        };
+        return fetch(`${baseURL}/job/comment`,
+            buildRequest('POST', token, data))
+                .then(res => res.json());
+    },
+};
 
 export default apiMethods;
