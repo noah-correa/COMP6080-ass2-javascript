@@ -570,7 +570,7 @@ const constructJobFeed = (page) => {
 }
 
 // Construct Profile Screen Job Item
-const constructProfileJob = (job, name) => {
+const constructProfileJob = (job, name, userId) => {
     const profileJobTemplate = document.getElementById('profile-job-item-template').cloneNode(true);
     profileJobTemplate.removeAttribute('id');
     profileJobTemplate.setAttribute('id', `job-${job.id}`);
@@ -592,11 +592,17 @@ const constructProfileJob = (job, name) => {
 
     const [updateButton, deleteButton] = modify.children;
 
-    // Update and Delete Listeners
-    updateButton.job = job;
-    deleteButton.jobId = job.id;
-    updateButton.addEventListener('click', handleJobUpdate);
-    deleteButton.addEventListener('click', handleJobDelete);
+    if (userId === state.user.userId) {
+        // Update and Delete Listeners
+        updateButton.job = job;
+        deleteButton.jobId = job.id;
+        updateButton.addEventListener('click', handleJobUpdate);
+        deleteButton.addEventListener('click', handleJobDelete);
+    } else {
+        hr2.classList.add('hidden');
+        updateButton.classList.add('hidden');
+        deleteButton.classList.add('hidden');
+    }
 
     return profileJobTemplate;
 }
@@ -709,7 +715,7 @@ const loadProfileScreen = (userId) => {
                 jobs.appendChild(noJobs);
             } else {
                 res.jobs.forEach((job, index) => {
-                    const newJob = constructProfileJob(job, res.name);
+                    const newJob = constructProfileJob(job, res.name, userId);
                     newJob.setAttribute('key', index);
                     jobs.appendChild(newJob);
                 });
