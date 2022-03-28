@@ -1,27 +1,16 @@
-/* base styles, feel free to edit */
-/* html {
-    
-    background-color: #f3f2ef;
-} */
-
-
-html, body {
+body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 400px;
-    min-height: 700px;
     font-family: Arial;
     background-color: #f3f2ef;
-}
-
-body {
-    width: 95%;
+    height: 100%;
+    width: 100%;
 }
 
 footer {
-    position: absolute;
-    bottom: 0px;
+    flex-shrink: 0;
+    padding: 10px;
 }
 
 /* GENERAL */
@@ -43,6 +32,14 @@ footer {
     border-radius: 20px
 }
 
+#profile-watch-button {
+    border-radius: 20px
+}
+
+button.page-link {
+    width: 90px;
+}
+
 .card {
     border-radius: 10px;
 }
@@ -50,20 +47,31 @@ footer {
 /* NAVBAR */
 header {
     width: 100%;
+    background-color: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    border-radius: 2px;
+    box-shadow: 0px 1px 10px #999;
 }
 
 .nav-bar {
     height: 100px;
+    padding: 5px 10px;
+}
+
+.nav-left {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    width: calc(100%-100px);
 }
 
 .nav-bar-links {
     display: flex;
-    align-items: flex-start;
 }
 
 #nav-user-container {
+    align-self: center;
     width: 100px;
     text-align: center;
 }
@@ -72,25 +80,35 @@ header {
 /* MAIN CONTENT */
 main {
     width: 100%;
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1000px;
+    padding-top: 1rem;
 }
 
 .content-container {
-    width: 100%;
-    /* border: 1px solid red; */
+    width: 80%;
 }
 
 .content-container > div {
     width: 100%;
 }
-
-/* .content-container > div > div {
+.content-container > div > div {
     width: 100%;
-} */
-
-#login-screen, #register-screen {
-    width: 40%;
 }
 
+.login-container, .register-container {
+    width: 40%;
+    min-width: 250px;
+}
+
+.card:not(:last-child) {
+    margin-bottom: 20px;
+}
+
+/* Job CSS */
 .jobs-container {
     display: flex;
     flex-direction: column;
@@ -127,22 +145,6 @@ main {
     align-self: flex-end;
 }
 
-/* .job-interactions-popup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    top: 20%;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: 90%;
-    max-height: 80%;
-    overflow-y: auto;
-    overflow-x: hidden;
-} */
-
 ul {
     width: 100%;
 }
@@ -158,7 +160,17 @@ ul {
     font-size: 1.5rem;
 }
 
-.profile-name-email-img {
+.job-creator {
+    font-style: italic;
+}
+
+.job-modify {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Profile CSS */
+#profile-container {
     width: 100%;
     display: flex;
     align-items: center;
@@ -172,8 +184,18 @@ img {
     border: 1px solid grey;
 }
 
-.profile-container hr {
-    width: 100%;
+@media (max-width: 900px) {
+    img {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media (max-width: 500px) {
+    img {
+        width: 75px;
+        height: 75px;
+    }
 }
 
 .profile-email {
@@ -184,16 +206,6 @@ img {
     margin-right: auto;
     margin-left: auto;
 }
-
-.job-modify {
-    display: flex;
-    justify-content: space-between;
-}
-
-/* .job-modify > button {
-    width: 100px;
-    height: 50px
-} */
 
 .comment {
     resize: none;

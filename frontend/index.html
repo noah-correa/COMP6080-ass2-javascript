@@ -1,313 +1,338 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>LurkForWork</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- You can add your styles and scripts here -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" media="screen" href="styles/global.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
-</head>
-<body>
-    <header>
-        <div id="navbar" class="navbar nav-bar">
-            <div class="nav-bar-links">
-                <h1 class="">lurkforwork.com</h1>
-                <a class="nav-link" id="nav-login" href="#">Login</a>
-                <a class="nav-link" id="nav-register" href="#">Register</a>
-                <a class="nav-link hidden" id="nav-dashboard" href="#">Dashboard</a>
-            </div>
-            <div class="vis-hidden" id="nav-user-container">
-                <span>Logged in as: </span><button type="button" class="btn btn-link" id="nav-user"></button>
-            </div>
-        </div>
-    </header>
-    <main role="main" class="align-items-center">
-        <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="error-alert">
-            <span class="error-message" id="error-message"></span>
-            <button class="error-close btn-close" id="error-close" type="button"></button>
-        </div>
-        <div class="content-container card flex-col-center">
-            <!--* Login Screen *-->
-            <div id="login-screen" class="login-container card-body">
-                <!-- Login Form -->
-                <form id="login" name="login" class="flex-col-center">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" autocomplete="email"/><br/>
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control"/><br/>
-                </form>
-                <div class="flex-col-center">
-                    <button id="switch-register" class="btn btn-link">Register new account</button>
-                    <button id="login-button" class="btn btn-primary" type="button">Login</button>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>LurkForWork</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- You can add your styles and scripts here -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" media="screen" href="styles/global.css">
+    </head>
+    <body>
+        <header>
+            <div class="navbar nav-bar">
+                <div class="nav-left">
+                    <h1>lurkforwork.com</h1>
+                    <div class="nav nav-links">
+                        <a class="nav-link" id="nav-login" href="#">Login</a>
+                        <a class="nav-link" id="nav-register" href="#">Register</a>
+                        <a class="nav-link hidden" id="nav-dashboard" href="#">Dashboard</a>
+                    </div>
+                </div>
+                <div class="vis-hidden" id="nav-user-container">
+                    <span>Logged in as: </span><a href="#" id="nav-user"></a>
                 </div>
             </div>
-
-            <!--* Register Screen *-->
-            <div id="register-screen" class="register-container card-body hidden">
-                <!-- Register Form -->
-                <form id="register" name="register" class="flex-col-center">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control"/><br/>
-                    <label for="name" class="form-label">Name</label>
-                    <input type="text" name="name" class="form-control"/><br/>
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control"/><br/>
-                    <label for="confirmpassword" class="form-label">Confirm Password</label>
-                    <input type="password" name="confirmpassword" class="form-control"/><br/>
-                    <input type="submit" value="Register" class="btn btn-primary"/>
-                </form>
+        </header>
+        <main role="main">
+            <div class="error hidden alert alert-danger alert-dismissible" role="alert" id="error-alert">
+                <span class="error-message" id="error-message"></span>
+                <button class="error-close btn-close" id="error-close" type="button"></button>
             </div>
-
-            <!--* Dashboard Screen *-->
-            <div id="dashboard-screen" class="dashboard-container card-body hidden">
-                <!-- Email Search -->
-                <div class="email-search-container">
-                    <form id="email-search" name="email-search" class="flex-col-center">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text">Find user to watch</span>
-                            <input type="email" class="form-control" placeholder="Email" name="email">
-                            <button class="btn btn-outline-primary" type="button" id="search-email">Watch</button>
-                        </div>
-                    </form>
-                </div>
-                <hr>
-                <!-- Create New Job Button -->
-                <div class="flex-col-center">
-                    <button id="dashboard-new-job" class="btn btn-primary">Create a new job</button>
-                </div>
-                <hr>
-                <!-- Job Likes Modal -->
-                <div class="modal fade" id="job-likes-modal">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title" id="jobs-likes-modal-title">Liked by</h4>
-                                <button type="button" id="job-likes-modal-close" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- Likes List -->
-                                <ul id="job-likes-list" class="job-likes-modal list-group"></ul>
+            <div class="content-container flex-col-center">
+                <!--* Login Screen *-->
+                <div id="login-screen" class="card">
+                    <div class="card-body flex-col-center">
+                        <div class="login-container">
+                            <!-- Login Form -->
+                            <form id="login" name="login" class="flex-col-center">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" autocomplete="email"/><br/>
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control"/><br/>
+                            </form>
+                            <div class="flex-col-center">
+                                <a id="switch-register" href="#">Register new account</a>
+                                <button id="login-button" class="btn btn-primary" type="button">Login</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Job Comments Modal -->
-                <div class="modal fade" id="job-comments-modal">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title" id="jobs-comments-modal-title">Comments</h4>
-                                <button type="button" id="job-comments-modal-close" class="btn-close" data-bs-dismiss="modal"></button>
+
+                <!--* Register Screen *-->
+                <div id="register-screen" class="card hidden">
+                    <div class="card-body flex-col-center">
+                        <div class="register-container">
+                            <!-- Register Form -->
+                            <form id="register" name="register" class="flex-col-center">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control"/><br/>
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" name="name" class="form-control"/><br/>
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control"/><br/>
+                                <label for="confirmpassword" class="form-label">Confirm Password</label>
+                                <input type="password" name="confirmpassword" class="form-control"/><br/>
+                                <input type="submit" value="Register" class="btn btn-primary"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                    
+                <!--* Dashboard Screen *-->
+                <div id="dashboard-screen" class="hidden">
+                    <!-- Email Search -->
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="email-search" name="email-search" class="flex-col-center">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Find user</span>
+                                    <input type="email" class="form-control" placeholder="Email" name="email">
+                                    <button class="btn btn-outline-primary" type="button" id="search-email">Watch</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Create New Job Button -->
+                            <div class="flex-col-center">
+                                <button id="dashboard-new-job" class="btn btn-primary">Create a new job</button>
                             </div>
-                            <div class="modal-body">
-                                <!-- Comments List -->
-                                <ul id="job-comments-list" class="job-comments-modal list-group">
-                                    <li class="list-group-item" id="add-comment-item">
-                                        <div class="input-group">
-                                            <textarea name="addcomment" id="add-comment-text" class="form-control comment" rows="1" placeholder="Add comment..."></textarea>
-                                            <button class="btn btn-outline-primary" type="button" id="add-comment-button">Add</button>
-                                        </div>
-                                    </li>
-                                </ul>
+                            <hr>
+                            <!-- Pagination -->
+                            <ul id="job-page-list" class="pagination justify-content-center">
+                                <li class="page-item"><button id="page-back" class="page-link">Previous</button></li>
+                                <li id="page-number" class="page-link">1</li>
+                                <li class="page-item"><button id="page-next" class="page-link">Next</button></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Job Feed -->
+                    <div class="card" id="jobs-container">
+                        <div class="card-body">
+                            <!-- Job List -->
+                            <ul class="job-list list-group" id="job-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Job Likes Modal -->
+                    <div class="modal fade" id="job-likes-modal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="jobs-likes-modal-title">Liked by</h4>
+                                    <button type="button" id="job-likes-modal-close" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Likes List -->
+                                    <ul id="job-likes-list" class="job-likes-modal list-group"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Job Comments Modal -->
+                    <div class="modal fade" id="job-comments-modal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="jobs-comments-modal-title">Comments</h4>
+                                    <button type="button" id="job-comments-modal-close" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Comments List -->
+                                    <ul id="job-comments-list" class="job-comments-modal list-group">
+                                        <li class="list-group-item" id="add-comment-item">
+                                            <div class="input-group">
+                                                <textarea name="addcomment" id="add-comment-text" class="form-control comment" rows="1" placeholder="Add comment..."></textarea>
+                                                <button class="btn btn-outline-primary" type="button" id="add-comment-button">Add</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Job List -->
-                <div class="jobs-container flex-col-center" id="jobs-container">
-                    <div class="feed-page-container" id="job-page">
-                        <button class="page-back btn btn-outline-primary"><</button>
-                        <span class="page-number">Page 1</span>
-                        <button class="page-next btn btn-outline-primary">></button>
+
+                <!--* Profile Screen -->
+                <div id="profile-screen" class="profile-container hidden">
+                    <div class="card">
+                        <div id="profile-container" class="card-body">
+                            <div class="profile-name-email">
+                                <div class="profile-name"><h1></h1></div>
+                                <div class="profile-email"><h4></h4></div>
+                                <div class="profile-buttons">
+                                    <button id="profile-update-button" class="profile-update btn btn-primary hidden">Update Profile</button>
+                                    <button id="profile-watch-button" class="profile-watch btn btn-primary hidden"></button>
+                                </div>
+                            </div>
+                            <img class="profile-img" alt="No Image Uploaded">
+                        </div>
                     </div>
-                    <ul class="job-list list-group" id="job-list"></ul>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="text-center">Jobs Created</h4>
+                            <ul id="profile-job-list" class="list-group"></ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="text-center">Watched By</h4>
+                            <ul id="profile-watchee-list" class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!--* Profile Update Screen -->
+                <div id="update-profile-screen" class="update-profile-container card-body hidden">
+                    <!-- Update Form -->
+                    <div class="update-profile-container flex-col-center" id="update-profile-container">
+                        <h4>Update your Profile</h4>
+                        <form id="update-profile-form" name="update-profile-form">
+                            <div class="mb-3 flex-col-center">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="">
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="password" value="">
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="cpassword" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="cpassword" value="">
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" value="">
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="image" class="form-label">Profile Picture</label>
+                                <img id="update-profile-image" class="profile-img" alt="No Image Uploaded">
+                                <input type="file" class="form-control" id="image">
+                            </div>
+                            <div class="flex-col-center">
+                                <button type="submit" class="btn btn-primary mb-3" id="update-profile-button">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!--* New Job Screen -->
+                <div id="new-job-screen" class="new-job-container card-body hidden">
+                    <!-- New Job Form -->
+                    <div class="new-job-container flex-col-center" id="new-job-container">
+                        <h4>Create a New Job</h4>
+                        <form id="new-job-form" name="new-job-form">
+                            <div class="mb-3 flex-col-center">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="title" value="" required>
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="start" class="form-label">Start</label>
+                                <input type="date" class="form-control" id="start" value="" required>
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea type="text" class="form-control" id="description" value="" required></textarea>
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="newjobimage" class="form-label">Image</label>
+                                <input type="file" class="form-control" id="newjobimage" required>
+                            </div>
+                            <div class="flex-col-center">
+                                <button type="submit" class="btn btn-primary mb-3" id="new-job-button">Create Job</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!--* Update Job Screen -->
+                <div id="update-job-screen" class="update-job-container card-body hidden">
+                    <!-- update Job Form -->
+                    <div class="update-job-container flex-col-center" id="update-job-container">
+                        <h4>Update Job</h4>
+                        <form id="update-job-form" name="update-job-form">
+                            <div class="mb-3 flex-col-center">
+                                <label for="update-title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="update-title" name="title" value="" required>
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="update-start" class="form-label">Start</label>
+                                <input type="date" class="form-control" id="update-start" name="start" value="" required>
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="update-description" class="form-label">Description</label>
+                                <textarea type="text" class="form-control" id="update-description" name="description" value="" required></textarea>
+                            </div>
+                            <div class="mb-3 flex-col-center">
+                                <label for="update-job-image" class="form-label">Image</label>
+                                <img id="update-job-image" class="job-img" alt="No Image Uploaded" name="previmage">
+                                <input type="file" class="form-control" id="update-job-image" name="image" required>
+                            </div>
+                            <div class="flex-col-center">
+                                <button type="submit" class="btn btn-primary mb-3" id="update-job-button">Update Job</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <!--* Profile Screen -->
-            <div id="profile-screen" class="profile-container card-body hidden">
-                <!-- Job List -->
-                <div class="profile-container flex-col-center" id="profile-container">
-                    <div class="profile-name-email-img">
-                        <div class="profile-name-email">
-                            <div class="profile-name"><h1></h1></div>
-                            <div class="profile-email"><h4></h4></div>
-                            <div class="profile-buttons">
-                                <button id="profile-update-button" class="profile-update btn btn-primary hidden">Update Profile</button>
-                                <button id="profile-watch-button" class="profile-update btn btn-primary hidden"></button>
-                            </div>
-                        </div>
-                        <img class="profile-img" alt="No Image Uploaded">
+
+
+            <!--* Templates -->
+            <div class="templates hidden" id="templates">
+                <!-- Job Feed Item Template -->
+                <li class="list-group-item job-item" id="job-item-template">
+                    <h4 class="job-name"></h4>
+                    <div class="job-posted-info">
+                        <a class="job-creator" href="#"><h6></h6></a>
+                        <h6 class="job-posted-date"></h6>
                     </div>
                     <hr>
-                    <h4>Jobs Created</h4>
-                    <ul class="profile-jobs-list list-group"></ul>
+                    <div class="job-content">
+                        <img class="job-img"/>
+                        <div class="job-start-description">
+                            <p class="job-start-date"></p>
+                            <p class="job-description"></p>
+                        </div>
+                    </div>
                     <hr>
-                    <h4>Watched By</h4>
-                    <ul class="profile-watcher-list list-group"></ul>
-                </div>
-            </div>
-
-            <!--* Profile Update Screen -->
-            <div id="update-profile-screen" class="update-profile-container card-body hidden">
-                <!-- Update Form -->
-                <div class="update-profile-container flex-col-center" id="update-profile-container">
-                    <h4>Update your Profile</h4>
-                    <form id="update-profile-form" name="update-profile-form">
-                        <div class="mb-3 flex-col-center">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" value="">
+                    <div class="job-interactions">
+                        <div class="job-likes-container">
+                            <button class="job-star"><span></span></button>
+                            <a class="job-likes" data-bs-toggle="modal" data-bs-target="#job-likes-modal" href="#"></a>
                         </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="password" class="form-label">New Password</label>
-                            <input type="password" class="form-control" id="password" value="">
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="cpassword" class="form-label">Confirm New Password</label>
-                            <input type="password" class="form-control" id="cpassword" value="">
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" value="">
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="image" class="form-label">Profile Picture</label>
-                            <img id="update-profile-image" class="profile-img" alt="No Image Uploaded">
-                            <input type="file" class="form-control" id="image">
-                        </div>
-                        <div class="flex-col-center">
-                            <button type="submit" class="btn btn-primary mb-3" id="update-profile-button">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!--* New Job Screen -->
-            <div id="new-job-screen" class="new-job-container card-body hidden">
-                <!-- New Job Form -->
-                <div class="new-job-container flex-col-center" id="new-job-container">
-                    <h4>Create a New Job</h4>
-                    <form id="new-job-form" name="new-job-form">
-                        <div class="mb-3 flex-col-center">
-                            <label for="title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="title" value="" required>
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="start" class="form-label">Start</label>
-                            <input type="date" class="form-control" id="start" value="" required>
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea type="text" class="form-control" id="description" value="" required></textarea>
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="newjobimage" class="form-label">Image</label>
-                            <input type="file" class="form-control" id="newjobimage" required>
-                        </div>
-                        <div class="flex-col-center">
-                            <button type="submit" class="btn btn-primary mb-3" id="new-job-button">Create Job</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!--* Update Job Screen -->
-            <div id="update-job-screen" class="update-job-container card-body hidden">
-                <!-- update Job Form -->
-                <div class="update-job-container flex-col-center" id="update-job-container">
-                    <h4>Update Job</h4>
-                    <form id="update-job-form" name="update-job-form">
-                        <div class="mb-3 flex-col-center">
-                            <label for="update-title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="update-title" name="title" value="" required>
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="update-start" class="form-label">Start</label>
-                            <input type="date" class="form-control" id="update-start" name="start" value="" required>
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="update-description" class="form-label">Description</label>
-                            <textarea type="text" class="form-control" id="update-description" name="description" value="" required></textarea>
-                        </div>
-                        <div class="mb-3 flex-col-center">
-                            <label for="update-job-image" class="form-label">Image</label>
-                            <img id="update-job-image" class="job-img" alt="No Image Uploaded" name="previmage">
-                            <input type="file" class="form-control" id="update-job-image" name="image" required>
-                        </div>
-                        <div class="flex-col-center">
-                            <button type="submit" class="btn btn-primary mb-3" id="update-job-button">Update Job</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-
-
-        <!--* Templates -->
-        <div class="templates hidden" id="templates">
-            <!-- Job Feed Item Template -->
-            <li class="list-group-item job-item" id="job-item-template">
-                <h2 class="job-name"></h2>
-                <div class="job-posted-info">
-                    <button class="job-creator btn btn-link card-title" type="button"><h4></h4></button>
-                    <h4 class="job-posted-date"></h4>
-                </div>
-                <hr>
-                <div class="job-content">
-                    <img class="job-img"/>
-                    <div class="job-start-description">
-                        <p class="job-start-date"></p>
-                        <p class="job-description"></p>
+                        <a class="job-comments" data-bs-toggle="modal" data-bs-target="#job-comments-modal"  href="#"></a>
                     </div>
-                </div>
-                <hr>
-                <div class="job-interactions">
-                    <div class="job-likes-container">
-                        <button class="job-star"><span></span></button>
-                        <button class="job-likes btn btn-link" data-bs-toggle="modal" data-bs-target="#job-likes-modal" type="button"></button>
+                </li>
+
+                <!-- Profile Job Item Template -->
+                <li class="list-group-item profile-job-item" id="profile-job-item-template">
+                    <h4 class="job-name"></h4>
+                    <div class="job-posted-info">
+                        <h6 class="job-creator"></h6>
+                        <h6 class="job-posted-date"></h6>
                     </div>
-                    <button class="job-comments btn btn-link" data-bs-toggle="modal" data-bs-target="#job-comments-modal"  type="button"></button>
-                </div>
-            </li>
-
-            <!-- Profile Job Item Template -->
-            <li class="list-group-item profile-job-item" id="profile-job-item-template">
-                <h2 class="job-name"></h2>
-                <div class="job-posted-info">
-                    <h4 class="card-title"></h4>
-                    <h4 class="job-posted-date"></h4>
-                </div>
-                <hr>
-                <div class="job-content">
-                    <img class="job-img"/>
-                    <div class="job-start-description">
-                        <p class="job-start-date"></p>
-                        <p class="job-description"></p>
+                    <hr>
+                    <div class="job-content">
+                        <img class="job-img"/>
+                        <div class="job-start-description">
+                            <p class="job-start-date"></p>
+                            <p class="job-description"></p>
+                        </div>
                     </div>
-                </div>
-                <hr>
-                <div class="job-modify">
-                    <button class="btn btn-primary">Update</button>
-                    <button class="btn btn-danger">Delete</button>
-                </div>
-            </li>
+                    <hr>
+                    <div class="job-modify">
+                        <button class="btn btn-primary">Update</button>
+                        <button class="btn btn-danger">Delete</button>
+                    </div>
+                </li>
 
-            <!-- Profile Watchee Item Template -->
-            <li class="list-group-item profile-watchee-item" id="profile-watchee-item-template">
-                <button class="profile-watchee btn btn-link" type="button"></button>
-            </li>
+                <!-- Profile Watchee Item Template -->
+                <li class="list-group-item profile-watchee-item" id="profile-watchee-item-template">
+                    <button class="profile-watchee btn btn-link" type="button"></button>
+                </li>
 
-        </div>
-    </main>
-    <footer class="text-center">
-        <p>&copy; lurkforwork.com 2022</p>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script type="module" src="src/main.js"></script>
-</body>
+            </div>
+        </main>
+        <footer class="text-center">
+            <p>&copy; lurkforwork.com 2022</p>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script type="module" src="src/main.js"></script>
+    </body>
 </html>

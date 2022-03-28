@@ -9,9 +9,17 @@ const state = {
         userToken: undefined,
         userId: undefined,
     },
-    currentScreen: 'login-screen'
+    currentScreen: 'login-screen',
+    currentJobPage: 1,
 }
 
+// Clears a <li> except for element with id defined
+const clearList = (parent, except=undefined) => {
+    [...parent.children].forEach((child) => {
+        if (except && except === child.id);
+        else parent.removeChild(child);
+    });
+}
 
 //* Screen helper functions
 // #region
@@ -29,6 +37,7 @@ const showScreen = (id) => {
 }
 
 const changeScreen = (id, cb=undefined, args=undefined) => {
+    hideError();
     if (args) cb(...args);
     else if (cb) cb();
     hideScreen(state.currentScreen);
@@ -39,7 +48,7 @@ const changeScreen = (id, cb=undefined, args=undefined) => {
 
 //* Error helper functions
 // #region
-const hideError = (id) => {
+const hideError = () => {
     document.getElementById('error-alert').classList.add('hidden');
 }
 
@@ -59,20 +68,20 @@ const showError = (message) => {
 // #endregion
 
 
-//* Navbar Functions
+//* Button Handler Functions
 // #region
+// Navbar Buttons
 const handleNavLogin = (event) => {
     event.preventDefault();
-    if (!state.user.isLoggedIn) {
+    if (!state.user.isLoggedIn && state.currentScreen !== 'login-screen') {
         changeScreen('login-screen');
         document.title = "LurkForWork - Login";
     }
 }
 
-
 const handleNavRegister = (event) => {
     event.preventDefault();
-    if (!state.user.isLoggedIn) {
+    if (!state.user.isLoggedIn && state.currentScreen !== 'register-screen') {
         changeScreen('register-screen');
         document.title = "LurkForWork - Register";
     }
@@ -80,16 +89,19 @@ const handleNavRegister = (event) => {
 
 const handleNavDashboard = (event) => {
     event.preventDefault();
-    if (state.user.isLoggedIn) {
+    if (state.user.isLoggedIn && state.currentScreen !== 'dashboard-screen') {
         changeScreen('dashboard-screen', loadDashboardScreen);
         document.title = "LurkForWork - Dashboard";
     }
 }
-// #endregion
 
+const handleNavUserProfile = (event) => {
+    event.preventDefault();
+    event.currentTarget.removeEventListener('click', handleNavUserProfile);
+    changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+}
 
-//* Login Screen
-// #region
+// Login Form Button
 const handleLogin = (event) => {
     event.preventDefault();
     const { email, password } = document.forms.login;
@@ -107,15 +119,13 @@ const handleLogin = (event) => {
     });
 }
 
+// Login Register Switch Link Button
 const handleSwitchRegister = (event) => {
     event.preventDefault();
     changeScreen('register-screen');
 }
-// #endregion
 
-
-//* Register Screen
-// #region
+// Register Submit Button
 const handleRegister = (event) => {
     event.preventDefault();
     const { email, name, password, confirmpassword } = document.forms.register;
@@ -134,44 +144,13 @@ const handleRegister = (event) => {
             state.user.userToken = res.token;
             state.user.userId = res.userId;
             state.user.isLoggedIn = true;
-            console.log("User registered successfully");
             changeScreen('dashboard-screen', loadDashboardScreen);
             document.title = "LurkForWork - Dashboard";
         }
     });
 }
-// #endregion
 
-
-// Dashboard helper functions
-// #region
-const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-}
-
-const getJobDate = (timeCreated) => {
-    const now = Date.now();
-    const posted = new Date(timeCreated);
-    const hoursSinceCreated = Math.floor((now - posted.getTime()) / 1000 / 60 / 60);
-    if (hoursSinceCreated < 24) {
-        const minsSinceCreated = Math.round((now - posted.getTime()) % 86400000 % 3600000 / 60000);
-        if (hoursSinceCreated === 0) return `${minsSinceCreated} min${minsSinceCreated === 1 ? "" : "s"} ago`
-        return `${hoursSinceCreated} hr${hoursSinceCreated === 1 ? "" : "s"} ${minsSinceCreated} min${minsSinceCreated === 1 ? "" : "s"} ago`
-    } else {
-        return formatDate(posted);
-    }
-}
-
-const clearList = (parent, except=undefined) => {
-    [...parent.children].forEach((child) => {
-        if (except && except === child.id);
-        else parent.removeChild(child);
-    });
-}
-
+// Profile Button
 const handleProfileButton = (event) => {
     event.preventDefault();
     event.currentTarget.removeEventListener('click', handleProfileButton);
@@ -180,6 +159,7 @@ const handleProfileButton = (event) => {
     changeScreen('profile-screen', loadProfileScreen, [event.currentTarget.userId]);
 }
 
+// Like Job Button
 const handleHeartButton = (event) => {
     event.preventDefault();
     const heartButton = event.currentTarget;
@@ -190,15 +170,7 @@ const handleHeartButton = (event) => {
             showError(res.error);
         } else {
             hideError();
-            // console.log(event.currentTarget);
-            if (userLiked) {
-                heartButton.classList.add('bi-star');
-                heartButton.classList.remove('bi-star-fill');
-            } else {
-                heartButton.classList.add('bi-star-fill');
-                heartButton.classList.remove('bi-star');
-            }
-            // heartButton.textContent = liked ? 'favorite_border' : 'favorite';
+            heartButton.textContent = userLiked ? '\u2606' : '\u2605';
             liked = !liked;
             heartButton.removeEventListener('click', handleHeartButton);
             changeScreen('dashboard-screen', loadDashboardScreen);
@@ -206,9 +178,9 @@ const handleHeartButton = (event) => {
     });
 }
 
+// Job Likes Modal Button
 const handleLikesModal = (event) => {
     event.preventDefault();
-    // console.log("showing modal");
     const { job } = event.currentTarget;
     const likesModalList = document.getElementById('job-likes-list');
     clearList(likesModalList);
@@ -231,15 +203,14 @@ const handleLikesModal = (event) => {
             newItem.appendChild(newLike);
             likesModalList.appendChild(newItem);
         });
-        // console.log(likesModalList);
     }
 }
 
+// Job Add Comment Button
 const handleAddComment = (event) => {
     event.preventDefault();
     const { jobId } = event.currentTarget;
     const comment = document.getElementById('add-comment-text').value;
-    console.log(jobId, comment);
     API.addComment(state.user.userToken, jobId, comment).then(res => {
         if (res.error) showError(res.error);
         else {
@@ -251,6 +222,7 @@ const handleAddComment = (event) => {
 
 }
 
+// Job Comments Modal Button
 const handleCommentsModal = (event) => {
     event.preventDefault();
     const { job } = event.currentTarget;
@@ -283,6 +255,229 @@ const handleCommentsModal = (event) => {
     }
 }
 
+// Email Search Button
+const handleEmailSearch = (event) => {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const { email } = document.forms['email-search'];
+    
+    API.watchUser(state.user.userToken, email.value, true).then(res => {
+        if (res.error) showError(res.error);
+        else {
+            button.removeEventListener('click', handleEmailSearch);
+            changeScreen('dashboard-screen', loadDashboardScreen);
+        }
+    })
+}
+
+// Create New Job Button
+const handleNewJob = (event) => {
+    event.preventDefault();
+    changeScreen('new-job-screen');
+}
+
+// Update User Profile Screen Button
+const handleUpdateProfileButton = (event) => {
+    event.preventDefault();
+    const update = event.currentTarget;
+    const { res } = event.currentTarget;
+    changeScreen('update-profile-screen', loadProfileUpdateScreen, [res]);
+}
+
+// Watch User Button
+const handleWatchButton = (event) => {
+    event.preventDefault();
+    const watch = event.currentTarget;
+    const { res, watching, userId } = watch;
+    let isWatching = watching;
+    API.watchUser(state.user.userToken, res.email, !isWatching).then(watchRes => {
+        if (watchRes.error) showError(watchRes.error);
+        else {
+            if (isWatching) {
+                watch.textContent = 'Watch User';
+                watch.classList.remove('btn-primary');
+                watch.classList.add('btn-outline-primary');
+            } else {
+                watch.textContent = 'Unwatch User';
+                watch.classList.remove('btn-outline-primary');
+                watch.classList.add('btn-primary');
+            }
+            isWatching = !isWatching;
+            changeScreen('profile-screen', loadProfileScreen, [userId]);
+        }
+    });
+}
+
+// Watchee User Profile Button
+const handleProfileWatcheeButton = (event) => {
+    event.preventDefault();
+    const { userId } = event.currentTarget;
+    changeScreen('profile-screen', loadProfileScreen, [userId]);
+}
+
+// Update Job Button
+const handleJobUpdate = (event) => {
+    event.preventDefault();
+    changeScreen('update-job-screen', loadUpdateJobScreen, [event.currentTarget.job]);
+}
+
+// Delete Job Button
+const handleJobDelete = (event) => {
+    event.preventDefault();
+    const deleteButton = event.currentTarget;
+    const { jobId } = deleteButton;
+    API.deleteJob(state.user.userToken, jobId).then(res => {
+        if (res.error) showError(res.error);
+        else {
+            hideError();
+            changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+        }
+    });
+}
+
+// Update User Information Submit Button
+const handleUpdateProfile = (event) => {
+    event.preventDefault();
+    hideError();
+    const id = document.getElementById('update-profile-button').getAttribute('data-id');
+    const { email, password, cpassword, name, image } = document.forms['update-profile-form'];
+    const data = {};
+    if (email.value) data.email = email.value;
+    if (password.value && password.value === cpassword.value) data.password = password.value;
+    if (password.value && password.value !== cpassword.value) {
+        showError("Passwords do not match");
+        return;
+    }
+    if (name.value) data.name = name.value;
+    if (image.files[0]) {
+        try {
+            fileToDataUrl(image.files[0]).then(res => {
+                data.image = res;                
+                API.updateProfile(state.user.userToken, data).then(res => {
+                    if (res.error) showError(res.error);
+                    else {
+                        if (data.name) document.getElementById('nav-user').textContent = data.name;
+                        changeScreen('profile-screen', loadProfileScreen, [id]);
+                    }
+                });
+            })
+        } catch {
+            showError("Invalid image file");
+        }
+    } else {
+        API.updateProfile(state.user.userToken, data).then(res => {
+            if (res.error) showError(res.error);
+            else {
+                if (data.name) document.getElementById('nav-user').textContent = data.name;
+                changeScreen('profile-screen', loadProfileScreen, [id]);
+            }
+        });
+
+    }
+
+}
+
+// New Job Submit Button
+const handleSubmitNewJob = (event) => {
+    event.preventDefault();
+    const { title, start, description, newjobimage } = document.forms['new-job-form'];
+    try {
+        if (!document.forms['new-job-form'].checkValidity()) {
+            showError("Please fill out all fields")
+        } else {
+            hideError();
+            fileToDataUrl(newjobimage.files[0]).then(img => {
+                const startDate = new Date(start.value).toISOString();
+                API.addJob(state.user.userToken, title.value, img, startDate, description.value).then(jobRes => {
+                    if (jobRes.error) showError(jobRes.error);
+                    else {
+                        hideError();
+                    }
+                });
+                changeScreen('dashboard-screen', loadDashboardScreen);
+            })
+        }
+    } catch {
+        showError("Invalid image file");
+    }
+}
+
+// Update Job Submit Button
+const handleUpdateJobButton = (event) => {
+    event.preventDefault();
+    const { title, start, description, image } = document.getElementById('update-job-form');
+    const id = Number.parseInt(document.getElementById('update-job-button').getAttribute('data-id'), 10);
+    hideError();
+    const data = { id };
+    if (title.value) data.title = title.value;
+    if (start.value) data.start = new Date(start.value).toISOString();
+    if (description.value) data.description = description.value;
+    if (image.files[0]) {
+        try {
+            fileToDataUrl(image.files[0]).then(res => {
+                data.image = res;                
+                API.updateJob(state.user.userToken, data).then(res => {
+                    if (res.error) showError(res.error);
+                    else {
+                        changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+                    }
+                });
+            })
+        } catch {
+            showError("Invalid image file");
+        }
+    } else {
+        API.updateJob(state.user.userToken, data).then(res => {
+            if (res.error) showError(res.error);
+            else {
+                event.currentTarget.removeEventListener('submit', handleUpdateProfile);
+                changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
+            }
+        });
+
+    }
+}
+
+// Job Feed Page Back Button
+const handlePageBack = (event) => {
+    event.preventDefault();
+    if (state.currentJobPage === 1) return;
+    constructJobFeed(state.currentJobPage-1);
+}
+
+// Job Feed Page Next Button
+const handlePageNext = (event) => {
+    event.preventDefault();
+    constructJobFeed(state.currentJobPage+1);
+}
+// #endregion
+
+
+//* List Element Construction Functions
+// #region
+// Format date to dd/mm/yyyy
+const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+// Construct Job Date String
+const getJobDate = (timeCreated) => {
+    const now = Date.now();
+    const posted = new Date(timeCreated);
+    const hoursSinceCreated = Math.floor((now - posted.getTime()) / 1000 / 60 / 60);
+    if (hoursSinceCreated < 24) {
+        const minsSinceCreated = Math.round((now - posted.getTime()) % 86400000 % 3600000 / 60000);
+        if (hoursSinceCreated === 0) return `${minsSinceCreated} min${minsSinceCreated === 1 ? "" : "s"} ago`
+        return `${hoursSinceCreated} hr${hoursSinceCreated === 1 ? "" : "s"} ${minsSinceCreated} min${minsSinceCreated === 1 ? "" : "s"} ago`
+    } else {
+        return formatDate(posted);
+    }
+}
+
+// Construct Job Feed Job Item
 const constructJobItem = (user, job) => {
     const jobTemplate = document.getElementById('job-item-template').cloneNode(true);
     jobTemplate.removeAttribute('id');
@@ -312,22 +507,12 @@ const constructJobItem = (user, job) => {
     postedInfo.children[0].userId = user.id;
     postedInfo.children[0].addEventListener('click', handleProfileButton);
 
-    // Likes/Comments Popup
-    // const [likesPopup, commentsPopup] = popups.children;
-
     // Set inital icon state
     const icon = heartButton.children[0];
     let userLiked = job.likes.find((like) => {
         return like.userId === state.user.userId;
     });
-    if (userLiked) {
-        icon.classList.add('bi-star-fill');
-        icon.classList.remove('bi-star');
-    } else {
-        icon.classList.add('bi-star');
-        icon.classList.remove('bi-star-fill');
-    }
-    // icon.textContent = userLiked ? 'favorite' : 'favorite_border';
+    icon.textContent = userLiked ? '\u2605' : '\u2606';
 
     // Heart Button Click listener
     heartButton.job = job;
@@ -345,194 +530,46 @@ const constructJobItem = (user, job) => {
     return jobTemplate;
 }
 
-const constructJobFeed = (feed, page) => {
-    API.getJobFeed(state.user.userToken, page).then(res => {
+// Construct Complete Job Feed
+const constructJobFeed = (page) => {
+    const jobsPerPage = 5;
+    API.getJobFeed(state.user.userToken, (page-1)*jobsPerPage).then(res => {
         if (res.error) {
             showError(res.error);
         } else if (res.length === 0) { 
             hideError();
-            // Clear Job List
-            clearList(feed);
-            const noJobs = document.createElement('li');
-            noJobs.classList.add('list-group-item');
-            noJobs.textContent = "No jobs watched";
-            feed.appendChild(noJobs);
-            return false;
         } else {
             hideError();
-            // Clear Job List
-            clearList(feed);
-            res.forEach((job, index) => {
-                API.getUser(state.user.userToken, job.creatorId).then(userJson => {
-                    if (userJson.error) {
-                        showError(userJson.error);
-                    } else {
-                        hideError();
-                        const newJob = constructJobItem(userJson, job);
-                        newJob.setAttribute('key', index);
-                        feed.appendChild(newJob);
-                    }
+            const feedList = document.getElementById('job-list');
+            if (res.length === 0 && page === 1) {
+                // First page and no jobs
+                clearList(feedList);
+                const noJobs = document.createElement('li');
+                noJobs.classList.add('list-group-item');
+                noJobs.textContent = "No jobs watched";
+                feedList.appendChild(noJobs);
+            } else {
+                clearList(feedList);
+                res.forEach((job, index) => {
+                    API.getUser(state.user.userToken, job.creatorId).then(userJson => {
+                        if (userJson.error) {
+                            showError(userJson.error);
+                        } else {
+                            hideError();
+                            const newJob = constructJobItem(userJson, job);
+                            newJob.setAttribute('key', index);
+                            feedList.appendChild(newJob);
+                        }
+                    });
                 });
-            });
-            return true;
-        }
-        return false;
-    })
-}
-// #endregion
-
-//* Dashboard Screen
-// #region
-const handleEmailSearch = (event) => {
-    event.preventDefault();
-    const button = event.currentTarget;
-    const { email } = document.forms['email-search'];
-    
-    // console.log(email);
-    API.watchUser(state.user.userToken, email.value, true).then(res => {
-        if (res.error) showError(res.error);
-        else {
-            button.removeEventListener('click', handleEmailSearch);
-            changeScreen('dashboard-screen', loadDashboardScreen);
+                document.getElementById('page-number').textContent = page;
+                state.currentJobPage = page;
+            }
         }
     })
 }
 
-const handleNavUserProfile = (event) => {
-    event.preventDefault();
-    event.currentTarget.removeEventListener('click', handleNavUserProfile);
-    changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
-}
-
-const handleNewJob = (event) => {
-    event.preventDefault();
-    event.currentTarget.removeEventListener('click', handleNewJob);
-    changeScreen('new-job-screen');
-}
-
-const loadDashboardScreen = () => {
-    if (state.user.isLoggedIn) {
-        // Change Navbar links
-        document.getElementById('nav-login').classList.add('hidden');
-        document.getElementById('nav-register').classList.add('hidden');
-        document.getElementById('nav-dashboard').classList.remove('hidden');
-        
-        // Set up Navbar Logged in user
-        API.getUser(state.user.userToken, state.user.userId).then(res => {
-            if (res.error) {
-                showError(res.error);
-            } else {
-                hideError();
-                document.getElementById('nav-user-container').classList.remove('vis-hidden');
-                document.getElementById('nav-user').textContent = res.name;
-                document.getElementById('nav-user').addEventListener('click', handleNavUserProfile);
-            }
-        })
-
-        // Handle Email search
-        document.getElementById('search-email').addEventListener('click', handleEmailSearch);
-
-        // Handle New Job
-        document.getElementById('dashboard-new-job').addEventListener('click', handleNewJob);
-
-        // Handle Job Feed
-        const feedList = document.getElementById('job-list');
-        const [pageBack, pageNum, pageNext] = document.getElementById('job-page').children;
-
-        let currPage = 1;
-        let jobsPerPage = 3;    // TODO: test with more jobs
-        constructJobFeed(feedList, jobsPerPage * (currPage-1));
-        
-        pageBack.addEventListener('click', (event) => {
-            console.log('page back');
-            event.preventDefault();
-            if (currPage === 1) return;
-            const made = constructJobFeed(feedList, jobsPerPage * (currPage-2));
-            if (made) {
-                currPage -= 1;
-                console.log(pageNum);
-                pageNum.textContent = `Page ${currPage}`;
-            }
-        });
-
-        pageNext.addEventListener('click', (event) => {
-            console.log('page next');
-            event.preventDefault();
-            const made = constructJobFeed(feedList, jobsPerPage * (currPage));
-            if (made) {
-                currPage += 1;
-                console.log(pageNum);
-                pageNum.textContent = `Page ${currPage}`;
-            }
-        });
-    }
-}
-// #endregion
-
-
-//* Profile Screen
-// #region
-const handleUpdateProfileButton = (event) => {
-    event.preventDefault();
-    const update = event.currentTarget;
-    const { res } = event.currentTarget;
-    update.removeEventListener('click', handleUpdateProfileButton);
-    changeScreen('update-profile-screen', loadProfileUpdateScreen, [res]);
-}
-
-const handleWatchButton = (event) => {
-    event.preventDefault();
-    const watch = event.currentTarget;
-    const { res, watching, userId } = watch;
-    let isWatching = watching;
-    API.watchUser(state.user.userToken, res.email, !isWatching).then(watchRes => {
-        if (watchRes.error) showError(watchRes.error);
-        else {
-            if (isWatching) {
-                watch.textContent = 'Watch User';
-                watch.classList.remove('btn-primary');
-                watch.classList.add('btn-outline-primary');
-            } else {
-                watch.textContent = 'Unwatch User';
-                watch.classList.remove('btn-outline-primary');
-                watch.classList.add('btn-primary');
-            }
-            isWatching = !isWatching;
-            watch.removeEventListener('click', handleWatchButton);
-            changeScreen('profile-screen', loadProfileScreen, [userId]);
-        }
-    });
-}
-
-const handleProfileWatcheeButton = (event) => {
-    event.preventDefault();
-    const { userId } = event.currentTarget;
-    event.currentTarget.removeEventListener('click', handleProfileWatcheeButton);
-    changeScreen('profile-screen', loadProfileScreen, [userId]);
-}
-
-const handleJobUpdate = (event) => {
-    event.preventDefault();
-    console.log("updated job");
-    event.currentTarget.removeEventListener('click', handleJobUpdate);
-    changeScreen('update-job-screen', loadUpdateJobScreen, [event.currentTarget.job]);
-}
-
-const handleJobDelete = (event) => {
-    event.preventDefault();
-    console.log("deleted job");
-    const deleteButton = event.currentTarget;
-    const { jobId } = deleteButton;
-    API.deleteJob(state.user.userToken, jobId).then(res => {
-        if (res.error) showError(res.error);
-        else {
-            hideError();
-            deleteButton.removeEventListener('click', handleJobDelete);
-            changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
-        }
-    });
-}
-
+// Construct Profile Screen Job Item
 const constructProfileJob = (job, name) => {
     const profileJobTemplate = document.getElementById('profile-job-item-template').cloneNode(true);
     profileJobTemplate.removeAttribute('id');
@@ -564,6 +601,7 @@ const constructProfileJob = (job, name) => {
     return profileJobTemplate;
 }
 
+// Construct Profile Watchee Item
 const constructProfileWatchee = (id, name) => {
     const watcheeTemplate = document.getElementById('profile-watchee-item-template').cloneNode(true);
     watcheeTemplate.removeAttribute('id');
@@ -574,19 +612,58 @@ const constructProfileWatchee = (id, name) => {
     profileButton.addEventListener('click', handleProfileWatcheeButton);
     return watcheeTemplate;
 }
+// #endregion
 
+
+//* Dashboard Screen
+// #region
+const loadDashboardScreen = () => {
+    if (state.user.isLoggedIn) {
+        // Change Navbar links
+        document.getElementById('nav-login').classList.add('hidden');
+        document.getElementById('nav-register').classList.add('hidden');
+        document.getElementById('nav-dashboard').classList.remove('hidden');
+        
+        // Set up Navbar Logged in user
+        API.getUser(state.user.userToken, state.user.userId).then(res => {
+            if (res.error) {
+                showError(res.error);
+            } else {
+                hideError();
+                document.getElementById('nav-user-container').classList.remove('vis-hidden');
+                document.getElementById('nav-user').textContent = res.name;
+                document.getElementById('nav-user').addEventListener('click', handleNavUserProfile);
+            }
+        })
+        // Handle Email search
+        document.getElementById('search-email').addEventListener('click', handleEmailSearch);
+        // Handle New Job
+        document.getElementById('dashboard-new-job').addEventListener('click', handleNewJob);
+        // Load Initial Job Feed
+        const feedList = document.getElementById('job-list');
+        clearList(feedList);
+        state.currentJobPage = 1;
+        constructJobFeed(state.currentJobPage);
+    }
+}
+// #endregion
+
+
+//* Profile Screen
+// #region
 const loadProfileScreen = (userId) => {
     const id = Number.parseInt(userId, 10);
     // Profile User JSON
     API.getUser(state.user.userToken, id).then(res => {
-        // console.log(res);
         if (res.error) showError(res.error);
         else {
             hideError();
-            const [nameEmailUpdateImg, h1, t1, jobs, h2, t2, watchedBy] = document.getElementById('profile-container').children;
-            const [nameEmailUpdate, img] = nameEmailUpdateImg.children;
-            const [name, email, buttons] = nameEmailUpdate.children;
+            const [nameEmailButtons, img] = document.getElementById('profile-container').children;
+            const [name, email, buttons] = nameEmailButtons.children;
             const [update, watch] = buttons.children;
+            const jobs = document.getElementById('profile-job-list');
+            const watchedBy = document.getElementById('profile-watchee-list');
+            const watchedTitle = watchedBy.parentElement.children[0];
 
             // Check if profile is logged in user's profile
             if (id === state.user.userId) {
@@ -640,7 +717,7 @@ const loadProfileScreen = (userId) => {
 
             // Watchee List
             clearList(watchedBy);
-            t2.textContent = `Watched by ${res.watcheeUserIds.length} User${res.watcheeUserIds.length === 1 ? "" : "s"}`;
+            watchedTitle.textContent = `Watched by ${res.watcheeUserIds.length} User${res.watcheeUserIds.length === 1 ? "" : "s"}`;
             if (res.watcheeUserIds.length === 0) {
                 const noWatchees = document.createElement('li');
                 noWatchees.classList.add('list-group-item');
@@ -668,49 +745,6 @@ const loadProfileScreen = (userId) => {
 
 //* Profile Update Screen
 // #region
-const handleUpdateProfile = (event) => {
-    event.preventDefault();
-    hideError();
-    const id = document.getElementById('update-profile-button').getAttribute('data-id');
-    const { email, password, cpassword, name, image } = document.forms['update-profile-form'];
-    const data = {};
-    if (email.value) data.email = email.value;
-    if (password.value && password.value === cpassword.value) data.password = password.value;
-    if (password.value && password.value !== cpassword.value) {
-        showError("Passwords do not match");
-        return;
-    }
-    if (name.value) data.name = name.value;
-    if (image.files[0]) {
-        try {
-            fileToDataUrl(image.files[0]).then(res => {
-                data.image = res;                
-                API.updateProfile(state.user.userToken, data).then(res => {
-                    if (res.error) showError(res.error);
-                    else {
-                        if (data.name) document.getElementById('nav-user').textContent = data.name;
-                        changeScreen('profile-screen', loadProfileScreen, [id]);
-                    }
-                });
-            })
-        } catch {
-            showError("Invalid image file");
-        }
-    } else {
-        // console.log(data);
-        API.updateProfile(state.user.userToken, data).then(res => {
-            if (res.error) showError(res.error);
-            else {
-                if (data.name) document.getElementById('nav-user').textContent = data.name;
-                event.currentTarget.removeEventListener('submit', handleUpdateProfile);
-                changeScreen('profile-screen', loadProfileScreen, [id]);
-            }
-        });
-
-    }
-
-}
-
 const loadProfileUpdateScreen = (prevUser) => {
     const { email, name } = document.forms['update-profile-form'];
     email.setAttribute('placeholder', prevUser.email);
@@ -722,74 +756,8 @@ const loadProfileUpdateScreen = (prevUser) => {
 // #endregion
 
 
-//* New Job Screen
-// #region
-const handleNewJobButton = (event) => {
-    event.preventDefault();
-    const { title, start, description, newjobimage } = document.forms['new-job-form'];
-    try {
-        if (!document.forms['new-job-form'].checkValidity()) {
-            showError("Please fill out all fields")
-        } else {
-            hideError();
-            fileToDataUrl(newjobimage.files[0]).then(img => {
-                const startDate = new Date(start.value).toISOString();
-                API.addJob(state.user.userToken, title.value, img, startDate, description.value).then(jobRes => {
-                    if (jobRes.error) showError(jobRes.error);
-                    else {
-                        hideError();
-                        console.log(jobRes.id);
-                    }
-                });
-                changeScreen('dashboard-screen', loadDashboardScreen);
-            })
-        }
-    } catch {
-        showError("Invalid image file");
-    }
-}
-// #endregion
-
-
 //* Update Job Screen
 // #region
-const handleUpdateJobButton = (event) => {
-    event.preventDefault();
-    const { title, start, description, image } = document.getElementById('update-job-form');
-    const id = Number.parseInt(document.getElementById('update-job-button').getAttribute('data-id'), 10);
-    // console.log(id);
-    hideError();
-    const data = { id };
-    if (title.value) data.title = title.value;
-    if (start.value) data.start = new Date(start.value).toISOString();
-    if (description.value) data.description = description.value;
-    if (image.files[0]) {
-        try {
-            fileToDataUrl(image.files[0]).then(res => {
-                data.image = res;                
-                API.updateJob(state.user.userToken, data).then(res => {
-                    if (res.error) showError(res.error);
-                    else {
-                        changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
-                    }
-                });
-            })
-        } catch {
-            showError("Invalid image file");
-        }
-    } else {
-        console.log(data);
-        API.updateJob(state.user.userToken, data).then(res => {
-            if (res.error) showError(res.error);
-            else {
-                event.currentTarget.removeEventListener('submit', handleUpdateProfile);
-                changeScreen('profile-screen', loadProfileScreen, [state.user.userId]);
-            }
-        });
-
-    }
-}
-
 const loadUpdateJobScreen = (job) => {
     const { title, start, description, previmage } = document.getElementById('update-job-form');
     title.value = job.title;
@@ -808,7 +776,8 @@ document.getElementById('nav-dashboard').addEventListener('click', handleNavDash
 document.getElementById('login-button').addEventListener('click', handleLogin);
 document.getElementById('switch-register').addEventListener('click', handleSwitchRegister);
 document.getElementById('register').addEventListener('click', handleRegister);
-document.getElementById('new-job-button').addEventListener('click', handleNewJobButton);
+document.getElementById('new-job-button').addEventListener('click', handleSubmitNewJob);
 document.getElementById('update-job-button').addEventListener('click', handleUpdateJobButton);
 document.getElementById('add-comment-button').addEventListener('click', handleAddComment);
-
+document.getElementById('page-back').addEventListener('click', handlePageBack);
+document.getElementById('page-next').addEventListener('click', handlePageNext);
