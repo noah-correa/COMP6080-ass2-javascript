@@ -186,7 +186,7 @@ const handleLikesModal = (event) => {
     clearList(likesModalList);
     if (job.likes.length === 0) {
         const noJob = document.createElement('li');
-        noJob.classList.add('list-group-item', 'fst-italic');
+        noJob.classList.add('list-group-item', 'text-center', 'fst-italic');
         noJob.textContent = "No likes"
         likesModalList.appendChild(noJob);
     } else {
@@ -232,7 +232,7 @@ const handleCommentsModal = (event) => {
 
     if (job.comments.length === 0) {
         const noComment = document.createElement('li');
-        noComment.classList.add('list-group-item', 'fst-italic');
+        noComment.classList.add('list-group-item', 'text-center', 'fst-italic');
         noComment.textContent = "No comments";
         commentsModalList.appendChild(noComment);
     } else {
@@ -536,8 +536,6 @@ const constructJobFeed = (page) => {
     API.getJobFeed(state.user.userToken, (page-1)*jobsPerPage).then(res => {
         if (res.error) {
             showError(res.error);
-        } else if (res.length === 0) { 
-            hideError();
         } else {
             hideError();
             const feedList = document.getElementById('job-list');
@@ -545,7 +543,7 @@ const constructJobFeed = (page) => {
                 // First page and no jobs
                 clearList(feedList);
                 const noJobs = document.createElement('li');
-                noJobs.classList.add('list-group-item');
+                noJobs.classList.add('list-group-item', 'text-center', 'fst-italic');
                 noJobs.textContent = "No jobs watched";
                 feedList.appendChild(noJobs);
             } else {
@@ -710,7 +708,7 @@ const loadProfileScreen = (userId) => {
             clearList(jobs);
             if (res.jobs.length === 0) {
                 const noJobs = document.createElement('li');
-                noJobs.classList.add('list-group-item');
+                noJobs.classList.add('list-group-item', 'text-center', 'fst-italic');
                 noJobs.textContent = "No jobs created";
                 jobs.appendChild(noJobs);
             } else {
@@ -726,7 +724,7 @@ const loadProfileScreen = (userId) => {
             watchedTitle.textContent = `Watched by ${res.watcheeUserIds.length} User${res.watcheeUserIds.length === 1 ? "" : "s"}`;
             if (res.watcheeUserIds.length === 0) {
                 const noWatchees = document.createElement('li');
-                noWatchees.classList.add('list-group-item');
+                noWatchees.classList.add('list-group-item', 'text-center', 'fst-italic');
                 noWatchees.textContent = "No users watching";
                 watchedBy.appendChild(noWatchees);
             } else {
